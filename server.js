@@ -49,6 +49,28 @@ const classResourceSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 const ClassResource = mongoose.model("ClassResource", classResourceSchema);
 
+const dataStoreSchema = new mongoose.Schema(
+  {
+    key: { type: String, required: true, unique: true },
+    data: { type: mongoose.Schema.Types.Mixed, required: true },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  },
+  { timestamps: true },
+);
+
+const parentCredentialSchema = new mongoose.Schema(
+  {
+    studentId: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
+    parentMobile: { type: String, required: true },
+    passwordHash: { type: String, required: true },
+  },
+  { timestamps: true },
+);
+
+const DataStore = mongoose.model("DataStore", dataStoreSchema);
+const ParentCredential = mongoose.model("ParentCredential", parentCredentialSchema);
+
 const asyncHandler = (handler) => (req, res, next) => {
   Promise.resolve(handler(req, res, next)).catch(next);
 };
@@ -106,9 +128,123 @@ function requireAuth(req, res, next) {
 
 function requireAdmin(req, res, next) {
   if (req.user.role !== "admin") {
-    return res.status(403).json({ message: "Admin access is required for PDF uploads." });
+    return res.status(403).json({ message: "Admin access is required." });
   }
   next();
+}
+
+const defaultSiteContent = {
+  schoolName: "Bhagirathi Academy School",
+  location: "Silgadhi, Doti, Nepal",
+  heroEyebrow: "Modern education in the heart of Doti",
+  heroTitle: "Bhagirathi Academy School",
+  heroText:
+    "A bilingual, student-focused school website and management portal for academics, attendance, assignments, notices, and parent communication.",
+  aboutTitle: "A complete digital home for Bhagirathi Academy",
+  introText:
+    "Bhagirathi Academy School serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
+  visionText: "To prepare disciplined, creative, and confident learners for a brighter future.",
+  missionText: "To combine strong academics, moral development, digital learning, and community partnership.",
+  principalName: "Hemraj Malasi",
+  principalText:
+    "Our goal is to build a school culture where every student is seen, supported, and prepared for lifelong learning.",
+  addressLine: "Silgadhi, Doti, Sudurpashchim Province, Nepal",
+  schoolPhone: "98XXXXXXXX",
+  schoolEmail: "bhagratiacademy65@gmail.com",
+};
+
+const defaultStudents = [
+  ["S-001", 1, 1, "Aarav Malasi", "Hemraj Malasi", "9841000001", "89%", 94, "A+", "Excellent reading progress"],
+  ["S-002", 1, 2, "Nisha Saud", "Kamala Saud", "9841000002", "90%", 89, "A", "Strong participation"],
+  ["S-003", 2, 1, "Bikash Khadka", "Mohan Khadka", "9841000003", "89%", 86, "A", "Improving in mathematics"],
+  ["S-004", 2, 2, "Ritika Bista", "Sita Bista", "9841000004", "90%", 92, "A+", "Very disciplined"],
+  ["S-005", 3, 1, "Anmol Rawal", "Gopal Rawal", "9841000005", "89%", 88, "A", "Good homework record"],
+  ["S-006", 3, 2, "Pratiksha Joshi", "Maya Joshi", "9841000006", "90%", 95, "A+", "Class topper"],
+  ["S-007", 4, 1, "Sujal Nepali", "Ramesh Nepali", "9841000007", "89%", 83, "A", "Needs regular revision"],
+  ["S-008", 4, 2, "Asmita Bogati", "Laxmi Bogati", "9841000008", "90%", 90, "A+", "Excellent attendance"],
+  ["S-009", 5, 1, "Sagar Singh", "Dhan Singh", "9841000009", "89%", 87, "A", "Active in sports"],
+  ["S-010", 5, 2, "Kusum Chand", "Gita Chand", "9841000010", "90%", 93, "A+", "Strong science performance"],
+].map(([id, classNumber, rollNumber, name, parentName, parentMobile, attendance, average, grade, remarks]) => ({
+  id,
+  classNumber,
+  rollNumber,
+  name,
+  parentName,
+  parentMobile,
+  attendance,
+  average,
+  grade,
+  remarks,
+}));
+
+const defaultTeachers = [
+  {
+    id: "T-001",
+    name: "Sushila Joshi",
+    subject: "Mathematics",
+    phone: "984XXXXXXX",
+    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: "T-002",
+    name: "Deepak Rawal",
+    subject: "Science",
+    phone: "985XXXXXXX",
+    img: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: "T-003",
+    name: "Mina Bhandari",
+    subject: "English",
+    phone: "986XXXXXXX",
+    img: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=80",
+  },
+];
+
+const defaultShowcase = [
+  {
+    id: "A-001",
+    name: "Anish Saud",
+    type: "Academic Topper",
+    detail: "Class 10 board exam distinction holder",
+    img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: "A-002",
+    name: "Ritika Khadka",
+    type: "Sports Star",
+    detail: "District-level athletics medal winner",
+    img: "https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: "A-003",
+    name: "Bibek Nepali",
+    type: "Quiz Champion",
+    detail: "Inter-school quiz competition winner",
+    img: "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=700&q=80",
+  },
+];
+
+const editableDefaults = {
+  siteContent: defaultSiteContent,
+  students: defaultStudents,
+  teachers: defaultTeachers,
+  showcase: defaultShowcase,
+};
+
+const editableKeys = new Set(Object.keys(editableDefaults));
+
+function normalizeText(value) {
+  return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function normalizeMobile(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+async function getStoredData(key) {
+  const item = await DataStore.findOne({ key }).lean();
+  return item ? item.data : editableDefaults[key];
 }
 
 async function seedDemoUsers() {
@@ -140,6 +276,12 @@ async function seedClasses() {
   });
 
   await ClassResource.bulkWrite(operations);
+}
+
+async function seedEditableData() {
+  for (const [key, data] of Object.entries(editableDefaults)) {
+    await DataStore.updateOne({ key }, { $setOnInsert: { key, data } }, { upsert: true });
+  }
 }
 
 app.get("/api/health", (_req, res) => {
@@ -177,6 +319,131 @@ app.post("/api/auth/login", asyncHandler(async (req, res) => {
 app.get("/api/classes", asyncHandler(async (_req, res) => {
   const classes = await ClassResource.find().sort({ classNumber: 1 }).lean();
   res.json(classes);
+}));
+
+app.get("/api/public/:key", asyncHandler(async (req, res) => {
+  const { key } = req.params;
+
+  if (!editableKeys.has(key)) {
+    return res.status(404).json({ message: "Unknown public data key." });
+  }
+
+  res.json(await getStoredData(key));
+}));
+
+app.get("/api/admin/data/:key", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const { key } = req.params;
+
+  if (!editableKeys.has(key)) {
+    return res.status(404).json({ message: "Unknown admin data key." });
+  }
+
+  res.json(await getStoredData(key));
+}));
+
+app.put("/api/admin/data/:key", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const { key } = req.params;
+
+  if (!editableKeys.has(key)) {
+    return res.status(404).json({ message: "Unknown admin data key." });
+  }
+
+  await DataStore.findOneAndUpdate(
+    { key },
+    { key, data: req.body, updatedBy: req.user.id },
+    { upsert: true, new: true },
+  );
+
+  res.json(req.body);
+}));
+
+app.get("/api/admin/parent-credentials/list", requireAuth, requireAdmin, asyncHandler(async (_req, res) => {
+  const credentials = await ParentCredential.find().select("studentId username parentMobile createdAt updatedAt").lean();
+  res.json(credentials);
+}));
+
+app.post("/api/admin/parent-credentials", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const { studentId } = req.body;
+  const students = await getStoredData("students");
+  const student = students.find((item) => item.id === studentId);
+
+  if (!student) {
+    return res.status(404).json({ message: "Student not found." });
+  }
+
+  const username = student.name.trim();
+  const password = student.parentMobile.trim();
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await ParentCredential.findOneAndUpdate(
+    { studentId: student.id },
+    {
+      studentId: student.id,
+      username,
+      parentMobile: student.parentMobile,
+      passwordHash,
+    },
+    { upsert: true, new: true },
+  );
+
+  res.json({
+    studentId: student.id,
+    username,
+    password,
+    parentMobile: student.parentMobile,
+  });
+}));
+
+app.delete("/api/admin/parent-credentials/:studentId", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  await ParentCredential.deleteOne({ studentId: req.params.studentId });
+  res.json({ ok: true });
+}));
+
+app.post("/api/parents/login", asyncHandler(async (req, res) => {
+  const username = normalizeText(req.body.username);
+  const password = String(req.body.password || "").trim();
+  const credentials = await ParentCredential.find().lean();
+  const students = await getStoredData("students");
+
+  for (const credential of credentials) {
+    const student = students.find((item) => item.id === credential.studentId);
+    const possibleUsernames = [credential.username, student?.name].filter(Boolean).map(normalizeText);
+    const usernameMatches = possibleUsernames.includes(username);
+    const passwordMatches =
+      (await bcrypt.compare(password, credential.passwordHash)) ||
+      normalizeMobile(password) === normalizeMobile(credential.parentMobile);
+
+    if (usernameMatches && passwordMatches && student) {
+      const token = jwt.sign(
+        {
+          role: "parent",
+          studentId: student.id,
+          username: credential.username,
+        },
+        JWT_SECRET,
+        { expiresIn: "8h" },
+      );
+
+      return res.json({ token, student });
+    }
+  }
+
+  res.status(401).json({ message: "Invalid parent username or password." });
+}));
+
+app.get("/api/parents/student", requireAuth, asyncHandler(async (req, res) => {
+  if (req.user.role !== "parent") {
+    return res.status(403).json({ message: "Parent access is required." });
+  }
+
+  const students = await getStoredData("students");
+  const student = students.find((item) => item.id === req.user.studentId);
+
+  if (!student) {
+    return res.status(404).json({ message: "Linked student record was not found." });
+  }
+
+  res.json(student);
 }));
 
 app.post(
@@ -240,6 +507,7 @@ async function start() {
 
     await seedDemoUsers();
     await seedClasses();
+    await seedEditableData();
 
     app.listen(PORT, () => {
       console.log(`Bhagirathi Academy app running at http://localhost:${PORT}`);

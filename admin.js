@@ -1,5 +1,7 @@
 const ADMIN_USERNAME = "ADMIN-001";
 const ADMIN_PASSWORD = "password123";
+const API_BASE = window.location.origin;
+const USE_BACKEND = window.location.protocol !== "file:";
 const STORAGE_KEYS = {
   adminSession: "bhagirathiAdminSession",
   rememberAdmin: "bhagirathiRememberAdmin",
@@ -9,6 +11,52 @@ const STORAGE_KEYS = {
   teachers: "bhagirathiTeachers",
   showcase: "bhagirathiShowcase",
 };
+
+async function apiRequest(path, options = {}) {
+  const session = readJson(STORAGE_KEYS.adminSession, null);
+  const headers = {
+    ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+    ...(options.headers || {}),
+  };
+
+  if (session?.token) {
+    headers.Authorization = `Bearer ${session.token}`;
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const contentType = response.headers.get("content-type") || "";
+  const payload = contentType.includes("application/json") ? await response.json() : await response.text();
+
+  if (!response.ok) {
+    throw new Error(payload.message || "Request failed.");
+  }
+
+  return payload;
+}
+
+async function loadData(key, fallback) {
+  if (USE_BACKEND) {
+    try {
+      return await apiRequest(`/api/admin/data/${key}`);
+    } catch (_error) {
+      return readJson(STORAGE_KEYS[key] || key, fallback);
+    }
+  }
+
+  return readJson(STORAGE_KEYS[key] || key, fallback);
+}
+
+async function saveData(key, data) {
+  if (USE_BACKEND) {
+    return apiRequest(`/api/admin/data/${key}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  writeJson(STORAGE_KEYS[key] || key, data);
+  return data;
+}
 
 const defaultSiteContent = {
   schoolName: "Bhagirathi Academy School",
@@ -139,8 +187,8 @@ function getParentCredentials() {
   return readJson(STORAGE_KEYS.parentCredentials, []);
 }
 
-function getSiteContent() {
-  return { ...defaultSiteContent, ...readJson(STORAGE_KEYS.siteContent, {}) };
+function getSiteContent(fallbackContent = null) {
+  return { ...defaultSiteContent, ...(fallbackContent || readJson(STORAGE_KEYS.siteContent, {})) };
 }
 
 function normalizeText(value) {
@@ -197,7 +245,7 @@ function createUsernameFromName(name) {
 
 function requireAdminSession() {
   const session = readJson(STORAGE_KEYS.adminSession, null);
-  if (!session?.isAdmin) {
+  if (!session?.isAdmin || (USE_BACKEND && !session.token)) {
     window.location.href = "admin-login.html";
     return false;
   }
@@ -219,13 +267,44 @@ function initAdminLogin() {
     rememberInput.checked = true;
   }
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     status.className = "status";
     status.textContent = "";
 
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
+
+    if (USE_BACKEND) {
+      try {
+        const result = await apiRequest("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ username, password, role: "admin" }),
+        });
+
+        writeJson(STORAGE_KEYS.adminSession, {
+          isAdmin: true,
+          username: result.user.username,
+          token: result.token,
+          loggedInAt: new Date().toISOString(),
+        });
+
+        if (rememberInput.checked) {
+          writeJson(STORAGE_KEYS.rememberAdmin, { username });
+        } else {
+          localStorage.removeItem(STORAGE_KEYS.rememberAdmin);
+        }
+
+        status.classList.add("success");
+        status.textContent = "Login successful. Redirecting...";
+        window.location.href = "dashboard.html";
+        return;
+      } catch (error) {
+        status.classList.add("error");
+        status.textContent = error.message || "Invalid admin username or password.";
+        return;
+      }
+    }
 
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       writeJson(STORAGE_KEYS.adminSession, {
@@ -251,12 +330,28 @@ function initAdminLogin() {
   });
 }
 
-function initDashboard() {
+async function initDashboard() {
   if (!document.querySelector("#studentTable")) return;
   if (!requireAdminSession()) return;
 
   seedStudents();
-  let students = getStudents();
+  let students = USE_BACKEND ? await loadData("students", demoStudents) : getStudents();
+  let siteContent = USE_BACKEND ? await loadData("siteContent", defaultSiteContent) : getSiteContent();
+  let teachers = USE_BACKEND ? await loadData("teachers", defaultTeachers) : getManagedCollection(STORAGE_KEYS.teachers, defaultTeachers);
+  let showcase = USE_BACKEND ? await loadData("showcase", defaultShowcase) : getManagedCollection(STORAGE_KEYS.showcase, defaultShowcase);
+
+  if (USE_BACKEND) {
+    writeJson(STORAGE_KEYS.students, students);
+    writeJson(STORAGE_KEYS.siteContent, siteContent);
+    writeJson(STORAGE_KEYS.teachers, teachers);
+    writeJson(STORAGE_KEYS.showcase, showcase);
+    try {
+      writeJson(STORAGE_KEYS.parentCredentials, await apiRequest("/api/admin/parent-credentials/list"));
+    } catch (_error) {
+      writeJson(STORAGE_KEYS.parentCredentials, []);
+    }
+  }
+
   let selectedStudent = students[0];
 
   const table = document.querySelector("#studentTable");
@@ -276,12 +371,12 @@ function initDashboard() {
   const showcaseForm = document.querySelector("#showcaseForm");
   const showcaseList = document.querySelector("#showcaseList");
   const showcaseFormStatus = document.querySelector("#showcaseFormStatus");
-  let teachers = getManagedCollection(STORAGE_KEYS.teachers, defaultTeachers);
-  let showcase = getManagedCollection(STORAGE_KEYS.showcase, defaultShowcase);
-
-  function persistStudents() {
+  async function persistStudents() {
     writeJson(STORAGE_KEYS.students, students);
     totalStudents.textContent = String(students.length);
+    if (USE_BACKEND) {
+      await saveData("students", students);
+    }
   }
 
   persistStudents();
@@ -329,6 +424,17 @@ function initDashboard() {
   function refreshExistingParentCredential(student) {
     const existing = getParentCredentials().find((item) => item.studentId === student.id);
     if (!existing) return;
+
+    if (USE_BACKEND) {
+      apiRequest("/api/admin/parent-credentials", {
+        method: "POST",
+        body: JSON.stringify({ studentId: student.id }),
+      }).then((credential) => {
+        saveParentCredential(credential);
+        updateCredentialCount();
+      }).catch(() => {});
+      return;
+    }
 
     saveParentCredential({
       ...existing,
@@ -412,14 +518,20 @@ function initDashboard() {
       openWhatsApp(student, studentMessage(student));
     });
 
-    document.querySelector("#generateCredentialButton").addEventListener("click", () => {
-      const credential = {
-        studentId: student.id,
-        username: createUsernameFromName(student.name),
-        password: student.parentMobile,
-        parentMobile: student.parentMobile,
-        createdAt: new Date().toISOString(),
-      };
+    document.querySelector("#generateCredentialButton").addEventListener("click", async () => {
+      const credential = USE_BACKEND
+        ? await apiRequest("/api/admin/parent-credentials", {
+            method: "POST",
+            body: JSON.stringify({ studentId: student.id }),
+          })
+        : {
+            studentId: student.id,
+            username: createUsernameFromName(student.name),
+            password: student.parentMobile,
+            parentMobile: student.parentMobile,
+            createdAt: new Date().toISOString(),
+          };
+
       saveParentCredential(credential);
       updateCredentialCount();
       document.querySelector("#credentialBox").hidden = false;
@@ -433,14 +545,17 @@ function initDashboard() {
       studentEditor.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    document.querySelector("#deleteStudentButton").addEventListener("click", () => {
+    document.querySelector("#deleteStudentButton").addEventListener("click", async () => {
       const confirmed = window.confirm(`Delete ${student.name}'s record? This also removes their generated parent login.`);
       if (!confirmed) return;
 
       students = students.filter((item) => item.id !== student.id);
       removeParentCredential(student.id);
+      if (USE_BACKEND) {
+        await apiRequest(`/api/admin/parent-credentials/${encodeURIComponent(student.id)}`, { method: "DELETE" });
+      }
       selectedStudent = students[0] || null;
-      persistStudents();
+      await persistStudents();
       updateCredentialCount();
       clearStudentForm();
       renderTable();
@@ -498,7 +613,7 @@ function initDashboard() {
   document.querySelector("#clearStudentForm").addEventListener("click", clearStudentForm);
 
   function fillContentForm() {
-    const content = getSiteContent();
+    const content = getSiteContent(siteContent);
     Object.entries(content).forEach(([key, value]) => {
       if (contentForm.elements[key]) {
         contentForm.elements[key].value = value;
@@ -506,22 +621,32 @@ function initDashboard() {
     });
   }
 
-  contentForm.addEventListener("submit", (event) => {
+  contentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const content = Object.fromEntries(new FormData(contentForm).entries());
+    siteContent = content;
     writeJson(STORAGE_KEYS.siteContent, content);
+    if (USE_BACKEND) {
+      await saveData("siteContent", content);
+    }
     contentFormStatus.className = "status success";
-    contentFormStatus.textContent = "Website content saved. Open the public website to preview changes.";
+    contentFormStatus.textContent = USE_BACKEND
+      ? "Website content saved permanently to the backend."
+      : "Website content saved in this browser. Open the public website to preview changes.";
   });
 
-  document.querySelector("#resetContentForm").addEventListener("click", () => {
+  document.querySelector("#resetContentForm").addEventListener("click", async () => {
     localStorage.removeItem(STORAGE_KEYS.siteContent);
+    siteContent = defaultSiteContent;
+    if (USE_BACKEND) {
+      await saveData("siteContent", defaultSiteContent);
+    }
     fillContentForm();
     contentFormStatus.className = "status success";
     contentFormStatus.textContent = "Default website content restored.";
   });
 
-  studentForm.addEventListener("submit", (event) => {
+  studentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(studentForm).entries());
     const isEditing = Boolean(data.id);
@@ -569,14 +694,17 @@ function initDashboard() {
     selectedStudent = studentRecord;
     refreshExistingParentCredential(studentRecord);
     updateCredentialCount();
-    persistStudents();
+    await persistStudents();
     renderDetail(studentRecord);
     renderTable();
     studentForm.elements.id.value = studentRecord.id;
   });
 
-  function saveManagedCollection(key, records) {
-    writeJson(key, records);
+  async function saveManagedCollection(key, records) {
+    writeJson(STORAGE_KEYS[key] || key, records);
+    if (USE_BACKEND) {
+      await saveData(key, records);
+    }
   }
 
   function renderManagementList(records, list, type) {
@@ -609,7 +737,7 @@ function initDashboard() {
   function setupManagedCrud({ form, list, status, getRecords, setRecords, storageKey, prefix, type }) {
     renderManagementList(getRecords(), list, type);
 
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       let records = getRecords();
@@ -625,7 +753,7 @@ function initDashboard() {
 
       status.className = "status success";
       setRecords(records);
-      saveManagedCollection(storageKey, records);
+      await saveManagedCollection(storageKey, records);
       renderManagementList(records, list, type);
       form.elements.id.value = record.id;
     });
@@ -675,7 +803,7 @@ function initDashboard() {
     setRecords: (records) => {
       teachers = records;
     },
-    storageKey: STORAGE_KEYS.teachers,
+    storageKey: "teachers",
     prefix: "T",
     type: "teacher",
   });
@@ -688,7 +816,7 @@ function initDashboard() {
     setRecords: (records) => {
       showcase = records;
     },
-    storageKey: STORAGE_KEYS.showcase,
+    storageKey: "showcase",
     prefix: "A",
     type: "showcase",
   });
@@ -730,7 +858,7 @@ function initParentPortal() {
     `;
   }
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     status.className = "status";
     status.textContent = "";
@@ -738,6 +866,25 @@ function initParentPortal() {
     const formData = new FormData(form);
     const username = normalizeText(formData.get("username"));
     const password = normalizeMobile(formData.get("password"));
+
+    if (USE_BACKEND) {
+      try {
+        const result = await apiRequest("/api/parents/login", {
+          method: "POST",
+          body: JSON.stringify({
+            username: formData.get("username"),
+            password: formData.get("password"),
+          }),
+        });
+        renderChild(result.student);
+        return;
+      } catch (error) {
+        status.classList.add("error");
+        status.textContent = error.message || "Invalid parent username or password.";
+        return;
+      }
+    }
+
     const credential = getParentCredentials().find((item) => {
       const linkedStudent = getStudents().find((student) => student.id === item.studentId);
       const validUsernames = [item.username, linkedStudent?.name].filter(Boolean).map(normalizeText);
