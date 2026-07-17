@@ -262,6 +262,34 @@ function loadManagedPublicData() {
   achievements = readSavedCollection(SHOWCASE_KEY, achievements);
 }
 
+async function loadBackendPublicData() {
+  if (window.location.protocol === "file:") return;
+
+  try {
+    const [contentResponse, teachersResponse, showcaseResponse] = await Promise.all([
+      fetch(`${API_BASE}/api/public/siteContent`),
+      fetch(`${API_BASE}/api/public/teachers`),
+      fetch(`${API_BASE}/api/public/showcase`),
+    ]);
+
+    if (contentResponse.ok) {
+      localStorage.setItem(SITE_CONTENT_KEY, JSON.stringify(await contentResponse.json()));
+    }
+
+    if (teachersResponse.ok) {
+      teachers = await teachersResponse.json();
+      localStorage.setItem(TEACHERS_KEY, JSON.stringify(teachers));
+    }
+
+    if (showcaseResponse.ok) {
+      achievements = await showcaseResponse.json();
+      localStorage.setItem(SHOWCASE_KEY, JSON.stringify(achievements));
+    }
+  } catch (_error) {
+    loadManagedPublicData();
+  }
+}
+
 function applySavedSiteContent() {
   if (language !== "en") return;
 
@@ -588,13 +616,18 @@ document.querySelector(".lang-switch").addEventListener("click", () => {
   renderCards();
 });
 
-loadManagedPublicData();
-setupClassTabs();
-renderCards();
-renderClass(1);
-applySavedSiteContent();
-loadClassResources();
-setupContactForm();
-setupLoginModal();
-setupPdfUpload();
-setupMenu();
+async function bootstrap() {
+  loadManagedPublicData();
+  await loadBackendPublicData();
+  setupClassTabs();
+  renderCards();
+  renderClass(1);
+  applySavedSiteContent();
+  loadClassResources();
+  setupContactForm();
+  setupLoginModal();
+  setupPdfUpload();
+  setupMenu();
+}
+
+bootstrap();
