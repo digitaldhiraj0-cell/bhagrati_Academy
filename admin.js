@@ -27,7 +27,7 @@ const defaultSiteContent = {
     "Our goal is to build a school culture where every student is seen, supported, and prepared for lifelong learning.",
   addressLine: "Silgadhi, Doti, Sudurpashchim Province, Nepal",
   schoolPhone: "98XXXXXXXX",
-  schoolEmail: "info@bhagirathiacademy.edu.np",
+  schoolEmail: "bhagratiacademy65@gmail.com",
 };
 
 const demoStudents = [

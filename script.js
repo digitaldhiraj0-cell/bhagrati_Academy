@@ -430,7 +430,7 @@ function setupContactForm() {
     const body = encodeURIComponent(
       `Name: ${data.name}\nEmail: ${data.email}\nSubject: ${data.subject}\n\n${data.message}`,
     );
-    window.location.href = `mailto:info@bhagirathiacademy.edu.np?subject=${encodeURIComponent(data.subject)}&body=${body}`;
+    window.location.href = `mailto:bhagratiacademy65@gmail.com?subject=${encodeURIComponent(data.subject)}&body=${body}`;
     status.textContent = t("formSuccess");
     form.reset();
   });
