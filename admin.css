@@ -439,6 +439,24 @@ tbody tr.active {
   border-radius: 8px;
 }
 
+.image-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.image-preview-row img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--white);
+}
+
 .management-item h3 {
   margin: 0 0 4px;
   font-size: 18px;

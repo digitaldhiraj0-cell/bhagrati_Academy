@@ -91,7 +91,19 @@ PUT /api/admin/data/siteContent
 PUT /api/admin/data/students
 PUT /api/admin/data/teachers
 PUT /api/admin/data/showcase
+PUT /api/teachers/:id
 ```
+
+Teacher images can be supplied as:
+
+```text
+/uploads/photo.jpg
+uploads/photo.jpg
+/Users/mac/Documents/bhagrati_Academy/science teacher.png
+https://example.com/photo.jpg
+```
+
+The backend validates the image path and returns a browser-safe `imageUrl`. Missing images use `/placeholder.svg`.
 
 Parent access:
 

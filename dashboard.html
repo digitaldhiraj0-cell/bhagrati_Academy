@@ -236,20 +236,36 @@
                 <input name="name" type="text" required />
               </label>
               <label>
-                <span>Subject</span>
-                <input name="subject" type="text" required />
+                <span>Designation</span>
+                <input name="designation" type="text" placeholder="Science Teacher" required />
+              </label>
+              <label>
+                <span>Department</span>
+                <input name="department" type="text" placeholder="Science" required />
               </label>
               <label>
                 <span>Phone</span>
                 <input name="phone" type="text" required />
               </label>
+              <label>
+                <span>Email</span>
+                <input name="email" type="email" placeholder="teacher@example.com" />
+              </label>
               <label class="editor-wide">
-                <span>Photo URL</span>
-                <input name="img" type="url" required />
+                <span>Photo Path or URL</span>
+                <input name="photoPath" type="text" placeholder="/uploads/photo.jpg or https://..." />
+              </label>
+              <label class="editor-wide">
+                <span>Description</span>
+                <textarea name="description" rows="3" placeholder="Short teacher profile"></textarea>
               </label>
             </div>
+            <div class="image-preview-row">
+              <img id="teacherImagePreview" src="placeholder.svg" alt="Teacher image preview" />
+              <span class="muted">Preview updates automatically from the photo path.</span>
+            </div>
             <div class="form-row">
-              <button class="btn" type="submit">Save Teacher</button>
+              <button class="btn" id="teacherSubmitButton" type="submit">Update Teacher</button>
               <button class="btn secondary" id="clearTeacherForm" type="button">Clear Form</button>
               <p class="status" id="teacherFormStatus" role="status"></p>
             </div>

@@ -220,6 +220,7 @@ const SITE_CONTENT_KEY = "bhagirathiSiteContent";
 const TEACHERS_KEY = "bhagirathiTeachers";
 const SHOWCASE_KEY = "bhagirathiShowcase";
 const PUBLIC_SYNC_KEY = "bhagirathiPublicSync";
+const PLACEHOLDER_IMAGE = "placeholder.svg";
 let language = "en";
 let classResources = [];
 let authState = JSON.parse(localStorage.getItem("bhagirathiAuth") || "null");
@@ -257,6 +258,28 @@ function readSavedCollection(key, fallback) {
   } catch (_error) {
     return fallback;
   }
+}
+
+function resolveImageUrl(value) {
+  const rawValue = String(value || "").trim();
+  if (!rawValue) return PLACEHOLDER_IMAGE;
+  if (/^https?:\/\//i.test(rawValue)) return rawValue;
+
+  const cleanPath = rawValue.replace(/^file:\/\//, "");
+  const fileName = cleanPath.split(/[\\/]/).filter(Boolean).pop() || cleanPath;
+  const relativePath = cleanPath.startsWith("/uploads")
+    ? cleanPath
+    : cleanPath.startsWith("uploads")
+      ? `/${cleanPath}`
+      : cleanPath.startsWith("/")
+        ? cleanPath
+        : `/${fileName}`;
+
+  if (window.location.protocol === "file:") {
+    return relativePath;
+  }
+
+  return `${API_BASE}${relativePath.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part)).join("/")}`;
 }
 
 function loadManagedPublicData() {
@@ -485,11 +508,13 @@ function renderCards() {
     .map(
       (teacher) => `
         <article class="profile-card">
-          <img src="${teacher.img}" alt="${teacher.name}" />
+          <img src="${resolveImageUrl(teacher.imageUrl || teacher.img || teacher.photoPath || teacher.image)}" alt="${teacher.name}" onerror="this.src='${PLACEHOLDER_IMAGE}'" />
           <div>
-            <span class="tag">${teacher.subject}</span>
+            <span class="tag">${teacher.department || teacher.subject || teacher.designation}</span>
             <h3>${teacher.name}</h3>
+            <p>${teacher.designation || ""}</p>
             <p>${language === "np" ? "सम्पर्क" : "Contact"}: ${teacher.phone}</p>
+            ${teacher.email ? `<p>Email: ${teacher.email}</p>` : ""}
           </div>
         </article>
       `,
@@ -500,7 +525,7 @@ function renderCards() {
     .map(
       (student) => `
         <article class="achievement-card">
-          <img src="${student.img}" alt="${student.name}" />
+          <img src="${resolveImageUrl(student.imageUrl || student.img || student.photoPath || student.image)}" alt="${student.name}" onerror="this.src='${PLACEHOLDER_IMAGE}'" />
           <div>
             <span class="tag">${student.type}</span>
             <h3>${student.name}</h3>

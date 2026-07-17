@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/bhagirathi_academy";
 const JWT_SECRET = process.env.JWT_SECRET || "development-only-secret";
 const uploadDir = path.join(__dirname, "uploads", "classes");
+const PLACEHOLDER_IMAGE = "/placeholder.svg";
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -201,24 +202,51 @@ const defaultStudents = [
 const defaultTeachers = [
   {
     id: "T-001",
-    name: "Sushila Joshi",
-    subject: "Mathematics",
+    name: "Tapendra Bhatta",
+    designation: "Science Teacher",
+    department: "Science",
+    subject: "Science",
     phone: "984XXXXXXX",
-    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80",
+    email: "science@bhagirathiacademy.edu.np",
+    description: "Science faculty member for practical and theory-based learning.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/science teacher.png",
+    img: "/Users/mac/Documents/bhagrati_Academy/science teacher.png",
   },
   {
     id: "T-002",
-    name: "Deepak Rawal",
-    subject: "Science",
+    name: "Khem Phulara",
+    designation: "Math Teacher",
+    department: "Mathematics",
+    subject: "Mathematics",
     phone: "985XXXXXXX",
-    img: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=700&q=80",
+    email: "math@bhagirathiacademy.edu.np",
+    description: "Mathematics faculty member focused on problem solving and fundamentals.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
+    img: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
   },
   {
     id: "T-003",
-    name: "Mina Bhandari",
+    name: "Bhuwan Bhatta",
+    designation: "English Teacher",
+    department: "English",
     subject: "English",
     phone: "986XXXXXXX",
-    img: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=80",
+    email: "english@bhagirathiacademy.edu.np",
+    description: "English faculty member supporting communication, reading, and writing skills.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/English teacher.png",
+    img: "/Users/mac/Documents/bhagrati_Academy/English teacher.png",
+  },
+  {
+    id: "T-004",
+    name: "Abhi Malashi",
+    designation: "Environment Health & Population Teacher",
+    department: "Environment Health & Population",
+    subject: "Environment Health & Population",
+    phone: "987XXXXXXX",
+    email: "ehp@bhagirathiacademy.edu.np",
+    description: "Environment Health & Population faculty member.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/ehp teacher.png",
+    img: "/Users/mac/Documents/bhagrati_Academy/ehp teacher.png",
   },
 ];
 
@@ -263,9 +291,107 @@ function normalizeMobile(value) {
   return String(value || "").replace(/\D/g, "");
 }
 
+function isAbsoluteUrl(value) {
+  return /^https?:\/\//i.test(String(value || ""));
+}
+
+function toPublicPath(filePath) {
+  const relative = path.relative(__dirname, filePath);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    return PLACEHOLDER_IMAGE;
+  }
+
+  return `/${relative.split(path.sep).map(encodeURIComponent).join("/")}`;
+}
+
+function resolveImagePath(record = {}) {
+  const rawValue = record.image || record.photoPath || record.img || "";
+  const imagePath = String(rawValue).trim();
+
+  if (!imagePath) return PLACEHOLDER_IMAGE;
+  if (isAbsoluteUrl(imagePath)) return imagePath;
+
+  const decodedPath = decodeURIComponent(imagePath);
+  const candidatePath = path.isAbsolute(decodedPath)
+    ? decodedPath
+    : path.join(__dirname, decodedPath.replace(/^\/+/, ""));
+
+  if (fs.existsSync(candidatePath)) {
+    return toPublicPath(candidatePath);
+  }
+
+  return PLACEHOLDER_IMAGE;
+}
+
+function normalizeTeacherRecord(record = {}) {
+  const department = String(record.department || record.subject || "").trim();
+  const designation = String(record.designation || (department ? `${department} Teacher` : "")).trim();
+  const photoPath = String(record.photoPath || record.image || record.img || "").trim();
+
+  return {
+    ...record,
+    id: String(record.id || "").trim(),
+    name: String(record.name || "").trim(),
+    designation,
+    department,
+    subject: String(record.subject || department).trim(),
+    phone: String(record.phone || "").trim(),
+    email: String(record.email || "").trim(),
+    description: String(record.description || "").trim(),
+    photoPath,
+    img: resolveImagePath({ ...record, photoPath }),
+    imageUrl: resolveImagePath({ ...record, photoPath }),
+  };
+}
+
+function validateTeacherPayload(payload = {}) {
+  const errors = {};
+  const name = String(payload.name || "").trim();
+  const designation = String(payload.designation || "").trim();
+  const department = String(payload.department || payload.subject || "").trim();
+  const phone = String(payload.phone || "").trim();
+  const email = String(payload.email || "").trim();
+  const image = String(payload.image || payload.photoPath || payload.img || "").trim();
+
+  if (!name) errors.name = "Teacher name is required.";
+  if (!designation) errors.designation = "Designation is required.";
+  if (!department) errors.department = "Department is required.";
+  if (!phone) errors.phone = "Phone number is required.";
+  if (phone && !/^[+\d][\d\s()+-]{6,20}$/.test(phone)) errors.phone = "Enter a valid phone number.";
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address.";
+
+  if (image && !isAbsoluteUrl(image)) {
+    const decodedPath = decodeURIComponent(image);
+    const candidatePath = path.isAbsolute(decodedPath)
+      ? decodedPath
+      : path.join(__dirname, decodedPath.replace(/^\/+/, ""));
+    if (!fs.existsSync(candidatePath)) {
+      errors.image = "Image path was not found. A placeholder will be used on the public website.";
+    }
+  }
+
+  return errors;
+}
+
+function sanitizeDataForResponse(key, data) {
+  if (key === "teachers" && Array.isArray(data)) {
+    return data.map(normalizeTeacherRecord);
+  }
+
+  if (key === "showcase" && Array.isArray(data)) {
+    return data.map((record) => ({
+      ...record,
+      img: resolveImagePath(record),
+      imageUrl: resolveImagePath(record),
+    }));
+  }
+
+  return data;
+}
+
 async function getStoredData(key) {
   const item = await DataStore.findOne({ key }).lean();
-  return item ? item.data : editableDefaults[key];
+  return sanitizeDataForResponse(key, item ? item.data : editableDefaults[key]);
 }
 
 async function seedDemoUsers() {
@@ -302,6 +428,21 @@ async function seedClasses() {
 async function seedEditableData() {
   for (const [key, data] of Object.entries(editableDefaults)) {
     await DataStore.updateOne({ key }, { $setOnInsert: { key, data } }, { upsert: true });
+  }
+
+  const teachersStore = await DataStore.findOne({ key: "teachers" }).lean();
+  const currentTeachers = Array.isArray(teachersStore?.data) ? teachersStore.data : [];
+  const currentNames = currentTeachers.map((teacher) => normalizeText(teacher.name));
+  const oldSeedNames = ["sushila joshi", "deepak rawal", "mina bhandari"];
+  const hasOldSeedTeachers = oldSeedNames.some((name) => currentNames.includes(name));
+  const hasRequestedTeachers = defaultTeachers.every((teacher) => currentNames.includes(normalizeText(teacher.name)));
+
+  if (!hasRequestedTeachers && (hasOldSeedTeachers || currentTeachers.length < defaultTeachers.length)) {
+    await DataStore.findOneAndUpdate(
+      { key: "teachers" },
+      { key: "teachers", data: defaultTeachers },
+      { upsert: true },
+    );
   }
 }
 
@@ -369,14 +510,77 @@ app.put("/api/admin/data/:key", requireAuth, requireAdmin, asyncHandler(async (r
     return res.status(404).json({ message: "Unknown admin data key." });
   }
 
+  const dataToSave = key === "teachers" && Array.isArray(req.body)
+    ? req.body.map((record) => normalizeTeacherRecord(record))
+    : req.body;
+
   await DataStore.findOneAndUpdate(
     { key },
-    { key, data: req.body, updatedBy: req.user.id },
+    { key, data: dataToSave, updatedBy: req.user.id },
     { upsert: true, new: true },
   );
 
-  emitPublicUpdate(key, req.body);
-  res.json(req.body);
+  const responseData = sanitizeDataForResponse(key, dataToSave);
+  emitPublicUpdate(key, responseData);
+  res.json(responseData);
+}));
+
+app.get("/api/teachers", asyncHandler(async (_req, res) => {
+  res.json(await getStoredData("teachers"));
+}));
+
+app.get("/api/teachers/:id", asyncHandler(async (req, res) => {
+  const teachers = await getStoredData("teachers");
+  const teacher = teachers.find((item) => item.id === req.params.id);
+
+  if (!teacher) {
+    return res.status(404).json({ success: false, message: "Teacher not found." });
+  }
+
+  res.json({ success: true, data: teacher });
+}));
+
+app.put("/api/teachers/:id", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const teachers = await getStoredData("teachers");
+  const teacherIndex = teachers.findIndex((item) => item.id === req.params.id);
+
+  if (teacherIndex === -1) {
+    return res.status(404).json({ success: false, message: "Teacher not found." });
+  }
+
+  const nextTeacher = normalizeTeacherRecord({
+    ...teachers[teacherIndex],
+    ...req.body,
+    id: req.params.id,
+  });
+  const validationErrors = validateTeacherPayload(nextTeacher);
+  const blockingErrors = Object.fromEntries(
+    Object.entries(validationErrors).filter(([key]) => key !== "image"),
+  );
+
+  if (Object.keys(blockingErrors).length) {
+    return res.status(400).json({
+      success: false,
+      message: "Please fix the highlighted teacher fields.",
+      errors: validationErrors,
+    });
+  }
+
+  teachers[teacherIndex] = nextTeacher;
+
+  await DataStore.findOneAndUpdate(
+    { key: "teachers" },
+    { key: "teachers", data: teachers, updatedBy: req.user.id },
+    { upsert: true, new: true },
+  );
+
+  emitPublicUpdate("teachers", teachers);
+  res.json({
+    success: true,
+    message: "Teacher updated successfully",
+    data: nextTeacher,
+    warnings: validationErrors.image ? { image: validationErrors.image } : undefined,
+  });
 }));
 
 app.get("/api/admin/parent-credentials/list", requireAuth, requireAdmin, asyncHandler(async (_req, res) => {

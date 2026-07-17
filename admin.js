@@ -20,6 +20,7 @@ const PUBLIC_SYNC_STORAGE_KEYS = new Set([
   STORAGE_KEYS.showcase,
 ]);
 const publicSyncChannel = "BroadcastChannel" in window ? new BroadcastChannel("bhagirathi-public-sync") : null;
+const PLACEHOLDER_IMAGE = "placeholder.svg";
 
 function broadcastPublicSync(key) {
   if (!PUBLIC_SYNC_STORAGE_KEYS.has(key)) return;
@@ -80,6 +81,38 @@ async function saveData(key, data) {
   return data;
 }
 
+function resolveImageUrl(value) {
+  const rawValue = String(value || "").trim();
+  if (!rawValue) return PLACEHOLDER_IMAGE;
+  if (/^https?:\/\//i.test(rawValue)) return rawValue;
+
+  const cleanPath = rawValue.replace(/^file:\/\//, "");
+  const fileName = cleanPath.split(/[\\/]/).filter(Boolean).pop() || cleanPath;
+  const relativePath = cleanPath.startsWith("/uploads")
+    ? cleanPath
+    : cleanPath.startsWith("uploads")
+      ? `/${cleanPath}`
+      : `/${fileName}`;
+
+  if (window.location.protocol === "file:") {
+    return relativePath;
+  }
+
+  return `${API_BASE}${relativePath.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part)).join("/")}`;
+}
+
+async function updateTeacher(id, data) {
+  if (USE_BACKEND) {
+    const result = await apiRequest(`/api/teachers/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return result.data;
+  }
+
+  return { ...data, id, img: resolveImageUrl(data.photoPath || data.image || data.img) };
+}
+
 const defaultSiteContent = {
   schoolName: "Bhagirathi Academy School",
   location: "Silgadhi, Doti, Nepal",
@@ -137,24 +170,51 @@ const demoStudents = [
 const defaultTeachers = [
   {
     id: "T-001",
-    name: "Sushila Joshi",
-    subject: "Mathematics",
+    name: "Tapendra Bhatta",
+    designation: "Science Teacher",
+    department: "Science",
+    subject: "Science",
     phone: "984XXXXXXX",
-    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80",
+    email: "science@bhagirathiacademy.edu.np",
+    description: "Science faculty member for practical and theory-based learning.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/science teacher.png",
+    img: "/science%20teacher.png",
   },
   {
     id: "T-002",
-    name: "Deepak Rawal",
-    subject: "Science",
+    name: "Khem Phulara",
+    designation: "Math Teacher",
+    department: "Mathematics",
+    subject: "Mathematics",
     phone: "985XXXXXXX",
-    img: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=700&q=80",
+    email: "math@bhagirathiacademy.edu.np",
+    description: "Mathematics faculty member focused on problem solving and fundamentals.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
+    img: "/math%20teacher.png",
   },
   {
     id: "T-003",
-    name: "Mina Bhandari",
+    name: "Bhuwan Bhatta",
+    designation: "English Teacher",
+    department: "English",
     subject: "English",
     phone: "986XXXXXXX",
-    img: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=80",
+    email: "english@bhagirathiacademy.edu.np",
+    description: "English faculty member supporting communication, reading, and writing skills.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/English teacher.png",
+    img: "/English%20teacher.png",
+  },
+  {
+    id: "T-004",
+    name: "Abhi Malashi",
+    designation: "Environment Health & Population Teacher",
+    department: "Environment Health & Population",
+    subject: "Environment Health & Population",
+    phone: "987XXXXXXX",
+    email: "ehp@bhagirathiacademy.edu.np",
+    description: "Environment Health & Population faculty member.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/ehp teacher.png",
+    img: "/ehp%20teacher.png",
   },
 ];
 
@@ -411,6 +471,8 @@ async function initDashboard() {
   const teacherForm = document.querySelector("#teacherForm");
   const teacherList = document.querySelector("#teacherList");
   const teacherFormStatus = document.querySelector("#teacherFormStatus");
+  const teacherSubmitButton = document.querySelector("#teacherSubmitButton");
+  const teacherImagePreview = document.querySelector("#teacherImagePreview");
   const showcaseForm = document.querySelector("#showcaseForm");
   const showcaseList = document.querySelector("#showcaseList");
   const showcaseFormStatus = document.querySelector("#showcaseFormStatus");
@@ -772,10 +834,10 @@ async function initDashboard() {
       .map(
         (record) => `
           <article class="management-item" data-id="${record.id}" data-type="${type}">
-            <img src="${record.img}" alt="${record.name}" />
+            <img src="${resolveImageUrl(record.imageUrl || record.img || record.photoPath)}" alt="${record.name}" onerror="this.src='${PLACEHOLDER_IMAGE}'" />
             <div>
               <h3>${record.name}</h3>
-              <p class="muted">${type === "teacher" ? `${record.subject} - ${record.phone}` : `${record.type} - ${record.detail}`}</p>
+              <p class="muted">${type === "teacher" ? `${record.designation || record.subject || record.department} - ${record.phone}` : `${record.type} - ${record.detail}`}</p>
             </div>
             <div class="management-actions">
               <button class="btn secondary" type="button" data-action="edit">Edit</button>
@@ -792,6 +854,10 @@ async function initDashboard() {
     form.elements.id.value = "";
     status.className = "status";
     status.textContent = "";
+    if (form === teacherForm) {
+      teacherImagePreview.src = PLACEHOLDER_IMAGE;
+      teacherSubmitButton.textContent = "Update Teacher";
+    }
   }
 
   function setupManagedCrud({ form, list, status, getRecords, setRecords, storageKey, prefix, type }) {
@@ -801,11 +867,32 @@ async function initDashboard() {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       let records = getRecords();
-      const record = { ...data, id: data.id || createRecordId(prefix, records) };
+      let record = {
+        ...data,
+        id: data.id || createRecordId(prefix, records),
+        subject: data.subject || data.department,
+        img: data.img || data.photoPath,
+      };
+
+      status.className = "status";
+      status.textContent = type === "teacher" ? "Updating..." : "Saving...";
+      const submitButton = form.querySelector("button[type='submit']");
+      submitButton.disabled = true;
+
+      try {
+        if (type === "teacher" && data.id && USE_BACKEND) {
+          record = await updateTeacher(record.id, record);
+        }
+      } catch (error) {
+        status.className = "status error";
+        status.textContent = error.message || "Update failed.";
+        submitButton.disabled = false;
+        return;
+      }
 
       if (data.id) {
         records = records.map((item) => (item.id === data.id ? record : item));
-        status.textContent = `${type === "teacher" ? "Teacher profile" : "Showcase item"} updated.`;
+        status.textContent = `${type === "teacher" ? "Teacher updated successfully" : "Showcase item updated."}`;
       } else {
         records.push(record);
         status.textContent = `${type === "teacher" ? "Teacher profile" : "Showcase item"} added.`;
@@ -816,9 +903,13 @@ async function initDashboard() {
       await saveManagedCollection(storageKey, records);
       renderManagementList(records, list, type);
       form.elements.id.value = record.id;
+      if (type === "teacher") {
+        teacherImagePreview.src = resolveImageUrl(record.imageUrl || record.img || record.photoPath);
+      }
+      submitButton.disabled = false;
     });
 
-    list.addEventListener("click", (event) => {
+    list.addEventListener("click", async (event) => {
       const button = event.target.closest("button[data-action]");
       const item = event.target.closest(".management-item");
       if (!button || !item) return;
@@ -831,6 +922,11 @@ async function initDashboard() {
         Object.entries(record).forEach(([key, value]) => {
           if (form.elements[key]) form.elements[key].value = value;
         });
+        if (type === "teacher") {
+          form.elements.photoPath.value = record.photoPath || record.image || record.img || "";
+          teacherImagePreview.src = resolveImageUrl(record.imageUrl || record.img || record.photoPath);
+          teacherSubmitButton.textContent = "Update Teacher";
+        }
         status.className = "status";
         status.textContent = `Editing ${record.name}`;
       }
@@ -840,7 +936,7 @@ async function initDashboard() {
         if (!confirmed) return;
         records = records.filter((entry) => entry.id !== record.id);
         setRecords(records);
-        saveManagedCollection(storageKey, records);
+        await saveManagedCollection(storageKey, records);
         renderManagementList(records, list, type);
         clearManagedForm(form, status);
       }
@@ -849,6 +945,10 @@ async function initDashboard() {
 
   document.querySelector("#clearTeacherForm").addEventListener("click", () => {
     clearManagedForm(teacherForm, teacherFormStatus);
+  });
+
+  teacherForm.elements.photoPath.addEventListener("input", () => {
+    teacherImagePreview.src = resolveImageUrl(teacherForm.elements.photoPath.value);
   });
 
   document.querySelector("#clearShowcaseForm").addEventListener("click", () => {
