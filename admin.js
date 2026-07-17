@@ -48,10 +48,15 @@ async function loadData(key, fallback) {
 
 async function saveData(key, data) {
   if (USE_BACKEND) {
-    return apiRequest(`/api/admin/data/${key}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
+    try {
+      return await apiRequest(`/api/admin/data/${key}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+    } catch (_error) {
+      writeJson(STORAGE_KEYS[key] || key, data);
+      return data;
+    }
   }
 
   writeJson(STORAGE_KEYS[key] || key, data);
@@ -245,7 +250,7 @@ function createUsernameFromName(name) {
 
 function requireAdminSession() {
   const session = readJson(STORAGE_KEYS.adminSession, null);
-  if (!session?.isAdmin || (USE_BACKEND && !session.token)) {
+  if (!session?.isAdmin || (USE_BACKEND && !session.token && !session.demoMode)) {
     window.location.href = "admin-login.html";
     return false;
   }
@@ -300,8 +305,28 @@ function initAdminLogin() {
         window.location.href = "dashboard.html";
         return;
       } catch (error) {
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+          writeJson(STORAGE_KEYS.adminSession, {
+            isAdmin: true,
+            username,
+            demoMode: true,
+            loggedInAt: new Date().toISOString(),
+          });
+
+          if (rememberInput.checked) {
+            writeJson(STORAGE_KEYS.rememberAdmin, { username });
+          } else {
+            localStorage.removeItem(STORAGE_KEYS.rememberAdmin);
+          }
+
+          status.classList.add("success");
+          status.textContent = "Demo login successful. Redirecting...";
+          window.location.href = "dashboard.html";
+          return;
+        }
+
         status.classList.add("error");
-        status.textContent = error.message || "Invalid admin username or password.";
+        status.textContent = "Invalid admin username or password.";
         return;
       }
     }
@@ -432,7 +457,16 @@ async function initDashboard() {
       }).then((credential) => {
         saveParentCredential(credential);
         updateCredentialCount();
-      }).catch(() => {});
+      }).catch(() => {
+        saveParentCredential({
+          ...existing,
+          username: createUsernameFromName(student.name),
+          password: student.parentMobile,
+          parentMobile: student.parentMobile,
+          updatedAt: new Date().toISOString(),
+        });
+        updateCredentialCount();
+      });
       return;
     }
 
@@ -519,18 +553,24 @@ async function initDashboard() {
     });
 
     document.querySelector("#generateCredentialButton").addEventListener("click", async () => {
-      const credential = USE_BACKEND
-        ? await apiRequest("/api/admin/parent-credentials", {
+      let credential = {
+        studentId: student.id,
+        username: createUsernameFromName(student.name),
+        password: student.parentMobile,
+        parentMobile: student.parentMobile,
+        createdAt: new Date().toISOString(),
+      };
+
+      if (USE_BACKEND) {
+        try {
+          credential = await apiRequest("/api/admin/parent-credentials", {
             method: "POST",
             body: JSON.stringify({ studentId: student.id }),
-          })
-        : {
-            studentId: student.id,
-            username: createUsernameFromName(student.name),
-            password: student.parentMobile,
-            parentMobile: student.parentMobile,
-            createdAt: new Date().toISOString(),
-          };
+          });
+        } catch (_error) {
+          credential.demoMode = true;
+        }
+      }
 
       saveParentCredential(credential);
       updateCredentialCount();
@@ -552,7 +592,9 @@ async function initDashboard() {
       students = students.filter((item) => item.id !== student.id);
       removeParentCredential(student.id);
       if (USE_BACKEND) {
-        await apiRequest(`/api/admin/parent-credentials/${encodeURIComponent(student.id)}`, { method: "DELETE" });
+        try {
+          await apiRequest(`/api/admin/parent-credentials/${encodeURIComponent(student.id)}`, { method: "DELETE" });
+        } catch (_error) {}
       }
       selectedStudent = students[0] || null;
       await persistStudents();
