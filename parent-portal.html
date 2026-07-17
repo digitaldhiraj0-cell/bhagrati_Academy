@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parent Portal | Bhagirathi Academy School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <main class="parent-page">
+      <section class="parent-card" id="parentLoginPanel">
+        <p class="eyebrow">Parent Portal</p>
+        <h1>Parent Login</h1>
+        <p class="muted">
+          Parents can only view the child linked to their generated credentials.
+        </p>
+        <form id="parentLoginForm">
+          <label>
+            <span>Username</span>
+            <input name="username" type="text" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input name="password" type="password" required />
+          </label>
+          <button class="btn" type="submit">View Child Data</button>
+          <p class="status" id="parentStatus" role="status"></p>
+        </form>
+      </section>
+
+      <section class="parent-card" id="parentDataPanel" hidden>
+        <p class="eyebrow">Restricted Child Record</p>
+        <h1 id="parentChildName">Student Name</h1>
+        <p class="muted">
+          This view is filtered by the linked student id. Other student records are not exposed.
+        </p>
+        <div class="parent-data" id="parentStudentData"></div>
+        <button class="btn secondary" id="parentLogout" type="button">Logout</button>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
