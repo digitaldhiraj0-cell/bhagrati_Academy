@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const path = require("path");
 const fs = require("fs");
+const http = require("http");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const express = require("express");
@@ -9,12 +10,20 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const { MongoMemoryServer } = require("mongodb-memory-server");
+const { Server } = require("socket.io");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/bhagirathi_academy";
 const JWT_SECRET = process.env.JWT_SECRET || "development-only-secret";
 const uploadDir = path.join(__dirname, "uploads", "classes");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
 
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -76,6 +85,18 @@ const asyncHandler = (handler) => (req, res, next) => {
 };
 
 let memoryMongo;
+
+io.on("connection", (socket) => {
+  socket.emit("public:connected", { connectedAt: new Date().toISOString() });
+});
+
+function emitPublicUpdate(key, data = null) {
+  io.emit("public:data-updated", {
+    key,
+    data,
+    updatedAt: new Date().toISOString(),
+  });
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadDir),
@@ -354,6 +375,7 @@ app.put("/api/admin/data/:key", requireAuth, requireAdmin, asyncHandler(async (r
     { upsert: true, new: true },
   );
 
+  emitPublicUpdate(key, req.body);
   res.json(req.body);
 }));
 
@@ -386,6 +408,7 @@ app.post("/api/admin/parent-credentials", requireAuth, requireAdmin, asyncHandle
     { upsert: true, new: true },
   );
 
+  emitPublicUpdate("parentCredentials");
   res.json({
     studentId: student.id,
     username,
@@ -396,6 +419,7 @@ app.post("/api/admin/parent-credentials", requireAuth, requireAdmin, asyncHandle
 
 app.delete("/api/admin/parent-credentials/:studentId", requireAuth, requireAdmin, asyncHandler(async (req, res) => {
   await ParentCredential.deleteOne({ studentId: req.params.studentId });
+  emitPublicUpdate("parentCredentials");
   res.json({ ok: true });
 }));
 
@@ -476,6 +500,7 @@ app.post(
       { new: true, upsert: true },
     );
 
+    emitPublicUpdate("classes", updated);
     res.json(updated);
   }),
 );
@@ -509,7 +534,7 @@ async function start() {
     await seedClasses();
     await seedEditableData();
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Bhagirathi Academy app running at http://localhost:${PORT}`);
       console.log("Demo users: BAS-001 / password123, PARENT-001 / password123, ADMIN-001 / password123");
     });

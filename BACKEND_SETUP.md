@@ -59,7 +59,22 @@ When running through `http://localhost:3000`, these dashboard changes are saved 
 
 Parent credentials are hashed in MongoDB. The parent portal only receives the child record linked to that generated credential.
 
-## 4. API Routes
+## 4. Real-Time Sync
+
+The backend uses Socket.IO WebSockets. When the admin dashboard saves or deletes editable data, the server emits:
+
+```text
+public:data-updated
+```
+
+The public website listens to this event and refreshes automatically. It also has two fallbacks:
+
+- BroadcastChannel/localStorage sync for demo tabs in the same browser
+- Short polling every 5 seconds when WebSockets are unavailable
+
+Real-time multi-device sync requires opening the site through the Node server, not `file:///`.
+
+## 5. API Routes
 
 Public website reads:
 

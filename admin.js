@@ -10,7 +10,24 @@ const STORAGE_KEYS = {
   siteContent: "bhagirathiSiteContent",
   teachers: "bhagirathiTeachers",
   showcase: "bhagirathiShowcase",
+  sync: "bhagirathiPublicSync",
 };
+
+const PUBLIC_SYNC_STORAGE_KEYS = new Set([
+  STORAGE_KEYS.students,
+  STORAGE_KEYS.siteContent,
+  STORAGE_KEYS.teachers,
+  STORAGE_KEYS.showcase,
+]);
+const publicSyncChannel = "BroadcastChannel" in window ? new BroadcastChannel("bhagirathi-public-sync") : null;
+
+function broadcastPublicSync(key) {
+  if (!PUBLIC_SYNC_STORAGE_KEYS.has(key)) return;
+
+  const message = { key, updatedAt: Date.now() };
+  localStorage.setItem(STORAGE_KEYS.sync, JSON.stringify(message));
+  publicSyncChannel?.postMessage(message);
+}
 
 async function apiRequest(path, options = {}) {
   const session = readJson(STORAGE_KEYS.adminSession, null);
@@ -175,6 +192,7 @@ function readJson(key, fallback) {
 
 function writeJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  broadcastPublicSync(key);
 }
 
 function seedStudents() {

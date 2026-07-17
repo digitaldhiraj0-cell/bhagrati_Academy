@@ -219,9 +219,11 @@ const API_BASE = window.location.origin;
 const SITE_CONTENT_KEY = "bhagirathiSiteContent";
 const TEACHERS_KEY = "bhagirathiTeachers";
 const SHOWCASE_KEY = "bhagirathiShowcase";
+const PUBLIC_SYNC_KEY = "bhagirathiPublicSync";
 let language = "en";
 let classResources = [];
 let authState = JSON.parse(localStorage.getItem("bhagirathiAuth") || "null");
+let lastPublicDataSignature = "";
 
 const demoAccounts = {
   student: {
@@ -287,6 +289,72 @@ async function loadBackendPublicData() {
     }
   } catch (_error) {
     loadManagedPublicData();
+  }
+}
+
+function getPublicDataSignature() {
+  return JSON.stringify({
+    siteContent: getSavedSiteContent(),
+    teachers,
+    achievements,
+  });
+}
+
+async function refreshPublicWebsite() {
+  if (window.location.protocol === "file:") {
+    loadManagedPublicData();
+  } else {
+    await loadBackendPublicData();
+  }
+
+  const nextSignature = getPublicDataSignature();
+  if (nextSignature === lastPublicDataSignature) return;
+  lastPublicDataSignature = nextSignature;
+
+  applyLanguage(language);
+  renderCards();
+  renderClass(activeClass);
+}
+
+function loadSocketClient() {
+  if (window.location.protocol === "file:" || window.io) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = `${API_BASE}/socket.io/socket.io.js`;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = resolve;
+    document.head.appendChild(script);
+  });
+}
+
+async function setupRealtimeSync() {
+  const channel = "BroadcastChannel" in window ? new BroadcastChannel("bhagirathi-public-sync") : null;
+
+  channel?.addEventListener("message", () => {
+    refreshPublicWebsite();
+  });
+
+  window.addEventListener("storage", (event) => {
+    if ([SITE_CONTENT_KEY, TEACHERS_KEY, SHOWCASE_KEY, PUBLIC_SYNC_KEY].includes(event.key)) {
+      refreshPublicWebsite();
+    }
+  });
+
+  await loadSocketClient();
+
+  if (window.io && window.location.protocol !== "file:") {
+    const socket = window.io(API_BASE, { transports: ["websocket", "polling"] });
+    socket.on("public:data-updated", () => {
+      refreshPublicWebsite();
+    });
+  }
+
+  if (window.location.protocol !== "file:") {
+    setInterval(refreshPublicWebsite, 5000);
   }
 }
 
@@ -623,11 +691,13 @@ async function bootstrap() {
   renderCards();
   renderClass(1);
   applySavedSiteContent();
+  lastPublicDataSignature = getPublicDataSignature();
   loadClassResources();
   setupContactForm();
   setupLoginModal();
   setupPdfUpload();
   setupMenu();
+  setupRealtimeSync();
 }
 
 bootstrap();
