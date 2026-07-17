@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login | Bhagirathi Academy School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <main class="auth-page">
+      <section class="auth-brand">
+        <div class="brand-row">
+          <span class="brand-mark">BA</span>
+          <div>
+            <strong>Bhagirathi Academy School</strong><br />
+            <small>Silgadhi, Doti, Nepal</small>
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">Admin Portal</p>
+          <h1>Manage students, parents, and class records.</h1>
+          <p>
+            Secure demo access for school administrators to view Class 1-10 student data,
+            generate parent credentials, and share student reports through WhatsApp.
+          </p>
+        </div>
+        <small>Demo admin: ADMIN-001 / password123</small>
+      </section>
+
+      <section class="auth-panel">
+        <form class="auth-card" id="adminLoginForm">
+          <p class="eyebrow">Secure Login</p>
+          <h2>Admin Login</h2>
+          <p class="muted">Enter your administrator credentials to continue to the dashboard.</p>
+
+          <label>
+            <span>Username</span>
+            <input id="adminUsername" name="username" type="text" autocomplete="username" required />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input id="adminPassword" name="password" type="password" autocomplete="current-password" required />
+          </label>
+
+          <div class="form-row">
+            <label class="check-label">
+              <input id="rememberMe" name="remember" type="checkbox" />
+              Remember Me
+            </label>
+            <a class="text-link" href="mailto:info@bhagirathiacademy.edu.np?subject=Admin%20Password%20Reset">
+              Forgot Password?
+            </a>
+          </div>
+
+          <button class="btn" type="submit">Login</button>
+          <p class="status" id="loginStatus" role="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

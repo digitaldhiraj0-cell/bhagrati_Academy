@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bhagirathi Academy School | Silgadhi, Doti</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="Bhagirathi Academy School home">
+        <span class="brand-mark">BA</span>
+        <span>
+          <strong data-i18n="schoolName">Bhagirathi Academy School</strong>
+          <small data-i18n="location">Silgadhi, Doti, Nepal</small>
+        </span>
+      </a>
+
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#about" data-i18n="navAbout">About</a>
+        <a href="#academics" data-i18n="navAcademics">Academics</a>
+        <a href="#staff" data-i18n="navStaff">Staff</a>
+        <a href="#students" data-i18n="navStudents">Students</a>
+        <a href="#portal" data-i18n="navPortal">Portals</a>
+        <a href="#contact" data-i18n="navContact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="lang-switch" type="button" aria-label="Toggle language">
+          <span class="active">EN</span>
+          <span>नेपाली</span>
+        </button>
+        <a class="login-link" href="#portal" data-i18n="login">Login</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="home">
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="heroEyebrow">Modern education in the heart of Doti</p>
+          <h1 data-i18n="heroTitle">Bhagirathi Academy School</h1>
+          <p data-i18n="heroText">
+            A bilingual, student-focused school website and management portal for academics,
+            attendance, assignments, notices, and parent communication.
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#academics" data-i18n="exploreAcademics">Explore Academics</a>
+            <a class="btn secondary" href="#contact" data-i18n="contactUs">Contact Us</a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-label="Students studying in a bright classroom">
+          <img
+            src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80"
+            alt="Students in a classroom"
+          />
+          <div class="notice-card">
+            <span data-i18n="noticeLabel">Latest Notice</span>
+            <strong data-i18n="noticeText">Admission and annual exam updates are available online.</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="School overview">
+        <article><strong>450+</strong><span data-i18n="statStudents">Students</span></article>
+        <article><strong>32</strong><span data-i18n="statTeachers">Teachers & Staff</span></article>
+        <article><strong>1-10</strong><span data-i18n="statClasses">Classes</span></article>
+        <article><strong>3</strong><span data-i18n="statPortals">Secure Portals</span></article>
+      </section>
+
+      <section class="section about-section" id="about">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="aboutEyebrow">About the school</p>
+          <h2 data-i18n="aboutTitle">A complete digital home for Bhagirathi Academy</h2>
+        </div>
+        <div class="about-grid">
+          <article class="panel intro-panel">
+            <h3 data-i18n="introTitle">School Introduction</h3>
+            <p data-i18n="introText">
+              Bhagirathi Academy School serves families in Silgadhi, Doti with a practical,
+              values-led education experience from Class 1 to Class 10.
+            </p>
+          </article>
+          <article class="panel">
+            <h3 data-i18n="visionTitle">Vision</h3>
+            <p data-i18n="visionText">To prepare disciplined, creative, and confident learners for a brighter future.</p>
+          </article>
+          <article class="panel">
+            <h3 data-i18n="missionTitle">Mission</h3>
+            <p data-i18n="missionText">
+              To combine strong academics, moral development, digital learning, and community partnership.
+            </p>
+          </article>
+          <article class="principal-card">
+            <img
+              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80"
+              alt="Principal portrait"
+            />
+            <div>
+              <span data-i18n="principalLabel">Message from the Principal</span>
+              <h3 data-i18n="principalName">Hemraj Malasi</h3>
+              <p data-i18n="principalText">
+                Our goal is to build a school culture where every student is seen, supported,
+                and prepared for lifelong learning.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section academics-section" id="academics">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="academicsEyebrow">Classes 1 to 10</p>
+          <h2 data-i18n="academicsTitle">Academic pages with routines, subjects, and assignments</h2>
+        </div>
+        <div class="class-tabs" role="tablist" aria-label="Class selector"></div>
+        <div class="class-detail">
+          <div>
+            <p class="eyebrow" data-i18n="selectedClass">Selected Class</p>
+            <h3 id="classTitle">Class 1</h3>
+            <p id="classDescription"></p>
+            <div class="pdf-panel">
+              <h4 data-i18n="pdfTitle">Class PDF Resources</h4>
+              <p data-i18n="pdfText">Admins can upload a syllabus, routine, or learning resource PDF for each class.</p>
+              <a class="pdf-link" id="pdfLink" href="#" target="_blank" rel="noopener" hidden data-i18n="viewPdf">
+                View uploaded PDF
+              </a>
+              <form id="pdfUploadForm" class="pdf-upload-form">
+                <label>
+                  <span data-i18n="pdfField">Upload PDF</span>
+                  <input id="classPdf" name="pdf" type="file" accept="application/pdf" required />
+                </label>
+                <button class="btn primary" type="submit" data-i18n="uploadPdf">Upload PDF</button>
+                <small data-i18n="pdfHelp">Login as Admin first. Demo admin: ADMIN-001 / password123.</small>
+                <p class="upload-status" role="status"></p>
+              </form>
+            </div>
+          </div>
+          <div class="subject-grid" id="subjectGrid"></div>
+        </div>
+      </section>
+
+      <section class="section" id="staff">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="staffEyebrow">Staff directory</p>
+          <h2 data-i18n="staffTitle">Teacher profiles with subject and contact information</h2>
+        </div>
+        <div class="card-grid staff-grid"></div>
+      </section>
+
+      <section class="section students-section" id="students">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="studentsEyebrow">Student achievements</p>
+          <h2 data-i18n="studentsTitle">A public showcase for toppers, leaders, and champions</h2>
+        </div>
+        <div class="card-grid achievement-grid"></div>
+      </section>
+
+      <section class="section portal-section" id="portal">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="portalEyebrow">Secure access</p>
+          <h2 data-i18n="portalTitle">Separate dashboards for students, parents, and administrators</h2>
+        </div>
+        <div class="portal-grid">
+          <article class="portal-card">
+            <span class="portal-icon">S</span>
+            <h3 data-i18n="studentPortal">Student Login Portal</h3>
+            <p data-i18n="studentPortalText">View assignments, attendance, grades, class routine, and notices.</p>
+            <button class="btn primary open-login" data-role="Student" data-i18n="openStudentLogin">Open Student Login</button>
+          </article>
+          <article class="portal-card">
+            <span class="portal-icon">P</span>
+            <h3 data-i18n="parentPortal">Parent Login Portal</h3>
+            <p data-i18n="parentPortalText">Track child progress, attendance, notices, results, and teacher contact.</p>
+            <button class="btn primary open-login" data-role="Parent" data-i18n="openParentLogin">Open Parent Login</button>
+            <a class="portal-text-link" href="parent-portal.html">Open full parent portal</a>
+          </article>
+          <article class="portal-card">
+            <span class="portal-icon">A</span>
+            <h3 data-i18n="adminPortal">Admin Login Portal</h3>
+            <p data-i18n="adminPortalText">Manage students, teachers, classes, subjects, notices, exams, and content.</p>
+            <button class="btn primary open-login" data-role="Admin" data-i18n="openAdminLogin">Open Admin Login</button>
+            <a class="portal-text-link" href="admin-login.html">Open full admin portal</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section contact-section" id="contact">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="contactEyebrow">Contact and inquiry</p>
+          <h2 data-i18n="contactTitle">Send a message directly to the school office</h2>
+        </div>
+        <div class="contact-layout">
+          <div class="contact-info">
+            <h3 data-i18n="schoolName">Bhagirathi Academy School</h3>
+            <p data-i18n="addressLine">Silgadhi, Doti, Sudurpashchim Province, Nepal</p>
+            <p><strong data-i18n="phoneLabel">Phone:</strong> <span data-site-content="schoolPhone">98XXXXXXXX</span></p>
+            <p><strong data-i18n="emailLabel">Email:</strong> <span data-site-content="schoolEmail">info@bhagirathiacademy.edu.np</span></p>
+            <div class="map-box" data-i18n="mapText">Map area for Silgadhi, Doti</div>
+          </div>
+          <form class="contact-form" id="contactForm">
+            <label>
+              <span data-i18n="nameField">Name</span>
+              <input name="name" type="text" required />
+            </label>
+            <label>
+              <span data-i18n="emailField">Email</span>
+              <input name="email" type="email" required />
+            </label>
+            <label>
+              <span data-i18n="subjectField">Subject</span>
+              <input name="subject" type="text" required />
+            </label>
+            <label>
+              <span data-i18n="messageField">Message</span>
+              <textarea name="message" rows="5" required></textarea>
+            </label>
+            <button class="btn primary" type="submit" data-i18n="sendMessage">Send Message</button>
+            <p class="form-status" role="status"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p data-i18n="footerText">Bhagirathi Academy School - Digital school website and management portal prototype.</p>
+    </footer>
+
+    <dialog class="login-modal" id="loginModal">
+      <form class="login-box" id="loginForm">
+        <button class="close-modal" type="button" aria-label="Close login">×</button>
+        <p class="eyebrow" id="loginRole">Student Portal</p>
+        <h2 data-i18n="secureLogin">Secure Login</h2>
+        <label>
+          <span data-i18n="usernameField">Username / ID</span>
+          <input id="loginUsername" name="username" type="text" placeholder="BAS-001" required />
+        </label>
+        <label>
+          <span data-i18n="passwordField">Password</span>
+          <input id="loginPassword" name="password" type="password" placeholder="••••••••" required />
+        </label>
+        <button class="btn primary" type="submit" data-i18n="loginButton">Login</button>
+        <small data-i18n="demoLogin">Demo student: BAS-001 / password123. Admin upload: ADMIN-001 / password123.</small>
+        <p class="login-status" role="status"></p>
+      </form>
+    </dialog>
+
+    <script src="script.js"></script>
+  </body>
+</html>

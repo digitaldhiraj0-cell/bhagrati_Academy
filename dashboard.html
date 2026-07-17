@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | Bhagirathi Academy School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <div class="dashboard-shell">
+      <header class="dashboard-header">
+        <a class="dashboard-brand" href="index.html">
+          <span class="brand-mark">BA</span>
+          <span>
+            <strong>Bhagirathi Academy School</strong>
+            <small>Admin Dashboard</small>
+          </span>
+        </a>
+        <button class="btn danger" id="logoutButton" type="button">Logout</button>
+      </header>
+
+      <main class="dashboard-main">
+        <section class="dashboard-hero">
+          <article class="dashboard-card">
+            <p class="eyebrow">Student Portal</p>
+            <h1>Class 1-10 Student Records</h1>
+            <p class="muted">
+              Search students by roll number or name, review detailed academic data, send
+              information to parents via WhatsApp, and generate parent login credentials.
+            </p>
+          </article>
+
+          <article class="dashboard-card metric-grid" aria-label="Dashboard statistics">
+            <div class="metric">
+              <strong id="totalStudents">0</strong>
+              <span>Total Students</span>
+            </div>
+            <div class="metric">
+              <strong>10</strong>
+              <span>Classes</span>
+            </div>
+            <div class="metric">
+              <strong id="credentialCount">0</strong>
+              <span>Parent Logins</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="dashboard-card">
+          <details class="student-editor" id="studentEditor">
+            <summary>Add or edit student data</summary>
+            <form id="studentForm">
+              <input id="studentId" name="id" type="hidden" />
+              <div class="editor-grid">
+                <label>
+                  <span>Student Name</span>
+                  <input name="name" type="text" required />
+                </label>
+                <label>
+                  <span>Class</span>
+                  <select name="classNumber" required>
+                    <option value="">Select class</option>
+                    <option value="1">Class 1</option>
+                    <option value="2">Class 2</option>
+                    <option value="3">Class 3</option>
+                    <option value="4">Class 4</option>
+                    <option value="5">Class 5</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Roll Number</span>
+                  <input name="rollNumber" type="number" min="1" required />
+                </label>
+                <label>
+                  <span>Parent Name</span>
+                  <input name="parentName" type="text" required />
+                </label>
+                <label>
+                  <span>Parent Mobile</span>
+                  <input name="parentMobile" type="tel" required />
+                </label>
+                <label>
+                  <span>Attendance</span>
+                  <input name="attendance" type="text" placeholder="94%" required />
+                </label>
+                <label>
+                  <span>Average Marks</span>
+                  <input name="average" type="number" min="0" max="100" required />
+                </label>
+                <label>
+                  <span>Grade</span>
+                  <input name="grade" type="text" placeholder="A+" required />
+                </label>
+                <label class="editor-wide">
+                  <span>Remarks</span>
+                  <input name="remarks" type="text" required />
+                </label>
+              </div>
+              <div class="form-row">
+                <button class="btn" type="submit">Save Student</button>
+                <button class="btn secondary" id="clearStudentForm" type="button">Clear Form</button>
+                <p class="status" id="studentFormStatus" role="status"></p>
+              </div>
+            </form>
+          </details>
+
+          <div class="toolbar">
+            <input id="studentSearch" type="search" placeholder="Search by roll number or student name" />
+            <select id="classFilter" aria-label="Filter by class">
+              <option value="all">All Classes</option>
+            </select>
+            <button class="btn secondary" id="resetSearch" type="button">Reset</button>
+          </div>
+
+          <div class="student-grid">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Roll No.</th>
+                    <th>Name</th>
+                    <th>Class</th>
+                    <th>Parent</th>
+                    <th>Mobile</th>
+                  </tr>
+                </thead>
+                <tbody id="studentTable"></tbody>
+              </table>
+            </div>
+
+            <aside class="student-detail" id="studentDetail">
+              <p class="eyebrow">Selected Student</p>
+              <h2>Select a student</h2>
+              <p class="muted">Click a student row to view full details and parent actions.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="dashboard-card content-management">
+          <p class="eyebrow">Frontend Content</p>
+          <h2>Edit Public Website Content</h2>
+          <p class="muted">
+            Update homepage, about, principal message, and contact text shown on the public website.
+            Changes are saved in this browser for demo use.
+          </p>
+
+          <form id="contentForm">
+            <div class="editor-grid">
+              <label>
+                <span>School Name</span>
+                <input name="schoolName" type="text" required />
+              </label>
+              <label>
+                <span>Location</span>
+                <input name="location" type="text" required />
+              </label>
+              <label>
+                <span>Hero Eyebrow</span>
+                <input name="heroEyebrow" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>Hero Title</span>
+                <input name="heroTitle" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>Hero Text</span>
+                <textarea name="heroText" rows="3" required></textarea>
+              </label>
+              <label class="editor-wide">
+                <span>About Title</span>
+                <input name="aboutTitle" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>School Introduction</span>
+                <textarea name="introText" rows="3" required></textarea>
+              </label>
+              <label>
+                <span>Vision</span>
+                <textarea name="visionText" rows="3" required></textarea>
+              </label>
+              <label>
+                <span>Mission</span>
+                <textarea name="missionText" rows="3" required></textarea>
+              </label>
+              <label>
+                <span>Principal Name</span>
+                <input name="principalName" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>Principal Message</span>
+                <textarea name="principalText" rows="3" required></textarea>
+              </label>
+              <label>
+                <span>Contact Address</span>
+                <input name="addressLine" type="text" required />
+              </label>
+              <label>
+                <span>Phone</span>
+                <input name="schoolPhone" type="text" required />
+              </label>
+              <label>
+                <span>Email</span>
+                <input name="schoolEmail" type="email" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <button class="btn" type="submit">Save Website Content</button>
+              <button class="btn secondary" id="resetContentForm" type="button">Restore Default Content</button>
+              <a class="btn secondary" href="index.html" target="_blank" rel="noopener">Preview Website</a>
+              <p class="status" id="contentFormStatus" role="status"></p>
+            </div>
+          </form>
+        </section>
+
+        <section class="dashboard-card content-management">
+          <p class="eyebrow">Teacher Profiles</p>
+          <h2>Update Staff Directory</h2>
+          <p class="muted">Add, edit, or delete teacher profiles shown on the public Staff section.</p>
+
+          <form id="teacherForm">
+            <input name="id" type="hidden" />
+            <div class="editor-grid">
+              <label>
+                <span>Teacher Name</span>
+                <input name="name" type="text" required />
+              </label>
+              <label>
+                <span>Subject</span>
+                <input name="subject" type="text" required />
+              </label>
+              <label>
+                <span>Phone</span>
+                <input name="phone" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>Photo URL</span>
+                <input name="img" type="url" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <button class="btn" type="submit">Save Teacher</button>
+              <button class="btn secondary" id="clearTeacherForm" type="button">Clear Form</button>
+              <p class="status" id="teacherFormStatus" role="status"></p>
+            </div>
+          </form>
+          <div class="management-list" id="teacherList"></div>
+        </section>
+
+        <section class="dashboard-card content-management">
+          <p class="eyebrow">Public Showcase</p>
+          <h2>Update Student Achievement Cards</h2>
+          <p class="muted">Manage the public showcase section for toppers, sports stars, and other achievements.</p>
+
+          <form id="showcaseForm">
+            <input name="id" type="hidden" />
+            <div class="editor-grid">
+              <label>
+                <span>Student Name</span>
+                <input name="name" type="text" required />
+              </label>
+              <label>
+                <span>Achievement Type</span>
+                <input name="type" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>Description</span>
+                <input name="detail" type="text" required />
+              </label>
+              <label class="editor-wide">
+                <span>Photo URL</span>
+                <input name="img" type="url" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <button class="btn" type="submit">Save Showcase Item</button>
+              <button class="btn secondary" id="clearShowcaseForm" type="button">Clear Form</button>
+              <p class="status" id="showcaseFormStatus" role="status"></p>
+            </div>
+          </form>
+          <div class="management-list" id="showcaseList"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
