@@ -279,7 +279,19 @@ function resolveImageUrl(value) {
     return relativePath;
   }
 
-  return `${API_BASE}${relativePath.split("/").map((part, index) => index === 0 ? "" : encodeURIComponent(part)).join("/")}`;
+  const encodedPath = relativePath
+    .split("/")
+    .map((part, index) => {
+      if (index === 0) return "";
+      try {
+        return encodeURIComponent(decodeURIComponent(part));
+      } catch (_error) {
+        return encodeURIComponent(part);
+      }
+    })
+    .join("/");
+
+  return `${API_BASE}${encodedPath}`;
 }
 
 function loadManagedPublicData() {
