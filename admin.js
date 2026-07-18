@@ -21,6 +21,12 @@ const PUBLIC_SYNC_STORAGE_KEYS = new Set([
 ]);
 const publicSyncChannel = "BroadcastChannel" in window ? new BroadcastChannel("bhagirathi-public-sync") : null;
 const PLACEHOLDER_IMAGE = "placeholder.svg";
+const LEGACY_HERO_VIDEO_URL = "https://videos.pexels.com/video-files/29879263/12828596_3840_2160_30fps.mp4";
+const DEFAULT_HERO_VIDEO_PLAYLIST = [
+  "https://videos.pexels.com/video-files/8938122/8938122-uhd_3840_2160_25fps.mp4",
+  "https://videos.pexels.com/video-files/32498241/13857629_2160_3840_60fps.mp4",
+  "https://videos.pexels.com/video-files/30686948/13130856_3840_2160_30fps.mp4",
+];
 
 function broadcastPublicSync(key) {
   if (!PUBLIC_SYNC_STORAGE_KEYS.has(key)) return;
@@ -114,22 +120,24 @@ async function updateTeacher(id, data) {
 }
 
 const defaultSiteContent = {
-  schoolName: "Bhagirathi Academy School",
+  schoolName: "Shree Bhagrati Academy",
   location: "Silgadhi, Doti, Nepal",
   heroEyebrow: "Modern education in the heart of Doti",
-  heroTitle: "Bhagirathi Academy School",
+  heroTitle: "Shree Bhagrati Academy",
   heroText:
     "A bilingual, student-focused school website and management portal for academics, attendance, assignments, notices, and parent communication.",
-  aboutTitle: "A complete digital home for Bhagirathi Academy",
+  heroVideoUrl:
+    "https://videos.pexels.com/video-files/8938122/8938122-uhd_3840_2160_25fps.mp4\nhttps://videos.pexels.com/video-files/32498241/13857629_2160_3840_60fps.mp4\nhttps://videos.pexels.com/video-files/30686948/13130856_3840_2160_30fps.mp4",
+  aboutTitle: "A complete digital home for Shree Bhagrati Academy",
   introText:
-    "Bhagirathi Academy School serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
+    "Shree Bhagrati Academy serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
   visionText: "To prepare disciplined, creative, and confident learners for a brighter future.",
   missionText: "To combine strong academics, moral development, digital learning, and community partnership.",
   principalName: "Hemraj Malasi",
   principalText:
     "Our goal is to build a school culture where every student is seen, supported, and prepared for lifelong learning.",
   addressLine: "Silgadhi, Doti, Sudurpashchim Province, Nepal",
-  schoolPhone: "98XXXXXXXX",
+  schoolPhone: "9865717422",
   schoolEmail: "bhagratiacademy65@gmail.com",
 };
 
@@ -169,6 +177,18 @@ const demoStudents = [
 
 const defaultTeachers = [
   {
+    id: "T-002",
+    name: "Khem Phulara",
+    designation: "Mathematics Teacher",
+    department: "Mathematics",
+    subject: "Mathematics",
+    phone: "985XXXXXXX",
+    email: "math@bhagirathiacademy.edu.np",
+    description: "Mathematics faculty member focused on problem solving and fundamentals.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
+    img: "/math%20teacher.png",
+  },
+  {
     id: "T-001",
     name: "Tapendra Bhatta",
     designation: "Science Teacher",
@@ -181,23 +201,11 @@ const defaultTeachers = [
     img: "/science%20teacher.png",
   },
   {
-    id: "T-002",
-    name: "Khem Phulara",
-    designation: "Math Teacher",
-    department: "Mathematics",
-    subject: "Mathematics",
-    phone: "985XXXXXXX",
-    email: "math@bhagirathiacademy.edu.np",
-    description: "Mathematics faculty member focused on problem solving and fundamentals.",
-    photoPath: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
-    img: "/math%20teacher.png",
-  },
-  {
     id: "T-003",
     name: "Bhuwan Bhatta",
     designation: "English Teacher",
     department: "English",
-    subject: "English",
+    subject: "English Teacher",
     phone: "986XXXXXXX",
     email: "english@bhagirathiacademy.edu.np",
     description: "English faculty member supporting communication, reading, and writing skills.",
@@ -209,7 +217,7 @@ const defaultTeachers = [
     name: "Abhi Malashi",
     designation: "Environment Health & Population Teacher",
     department: "Environment Health & Population",
-    subject: "Environment Health & Population",
+    subject: "Environment Health and Population",
     phone: "987XXXXXXX",
     email: "ehp@bhagirathiacademy.edu.np",
     description: "Environment Health & Population faculty member.",
@@ -271,7 +279,12 @@ function getParentCredentials() {
 }
 
 function getSiteContent(fallbackContent = null) {
-  return { ...defaultSiteContent, ...(fallbackContent || readJson(STORAGE_KEYS.siteContent, {})) };
+  const content = { ...defaultSiteContent, ...(fallbackContent || readJson(STORAGE_KEYS.siteContent, {})) };
+  const savedHeroVideo = String(content.heroVideoUrl || "").trim();
+  if (!savedHeroVideo || savedHeroVideo === LEGACY_HERO_VIDEO_URL) {
+    content.heroVideoUrl = DEFAULT_HERO_VIDEO_PLAYLIST.join("\n");
+  }
+  return content;
 }
 
 function normalizeText(value) {
@@ -576,7 +589,7 @@ async function initDashboard() {
   function studentMessage(student, includeCredentials = false, credential = null) {
     const parentLink = buildPageUrl("parent-portal.html");
     const lines = [
-      `Bhagirathi Academy School - Student Information`,
+      `Shree Bhagrati Academy - Student Information`,
       `Student: ${student.name}`,
       `Class: ${student.classNumber}`,
       `Roll No: ${student.rollNumber}`,

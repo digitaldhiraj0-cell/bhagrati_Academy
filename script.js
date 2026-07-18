@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    schoolName: "Bhagirathi Academy School",
+    schoolName: "Shree Bhagrati Academy",
     location: "Silgadhi, Doti, Nepal",
     navAbout: "About",
     navAcademics: "Academics",
@@ -10,7 +10,7 @@ const translations = {
     navContact: "Contact",
     login: "Login",
     heroEyebrow: "Modern education in the heart of Doti",
-    heroTitle: "Bhagirathi Academy School",
+    heroTitle: "Shree Bhagrati Academy",
     heroText:
       "A bilingual, student-focused school website and management portal for academics, attendance, assignments, notices, and parent communication.",
     exploreAcademics: "Explore Academics",
@@ -22,10 +22,10 @@ const translations = {
     statClasses: "Classes",
     statPortals: "Secure Portals",
     aboutEyebrow: "About the school",
-    aboutTitle: "A complete digital home for Bhagirathi Academy",
+    aboutTitle: "A complete digital home for Shree Bhagrati Academy",
     introTitle: "School Introduction",
     introText:
-      "Bhagirathi Academy School serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
+      "Shree Bhagrati Academy serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
     visionTitle: "Vision",
     visionText: "To prepare disciplined, creative, and confident learners for a brighter future.",
     missionTitle: "Mission",
@@ -64,7 +64,7 @@ const translations = {
     subjectField: "Subject",
     messageField: "Message",
     sendMessage: "Send Message",
-    footerText: "Bhagirathi Academy School - Digital school website and management portal prototype.",
+    footerText: "Shree Bhagrati Academy - Digital school website and management portal prototype.",
     secureLogin: "Secure Login",
     usernameField: "Username / ID",
     passwordField: "Password",
@@ -86,7 +86,7 @@ const translations = {
       "This class page can include routine, syllabus PDF, subject teachers, assignments, exam plan, and learning resources.",
   },
   np: {
-    schoolName: "भागीरथी एकेडेमी स्कूल",
+    schoolName: "श्री भागरती एकेडेमी",
     location: "सिलगढी, डोटी, नेपाल",
     navAbout: "हाम्रो बारेमा",
     navAcademics: "शैक्षिक",
@@ -96,7 +96,7 @@ const translations = {
     navContact: "सम्पर्क",
     login: "लगइन",
     heroEyebrow: "डोटीको मुटुमा आधुनिक शिक्षा",
-    heroTitle: "भागीरथी एकेडेमी स्कूल",
+    heroTitle: "श्री भागरती एकेडेमी",
     heroText:
       "शैक्षिक विवरण, हाजिरी, गृहकार्य, सूचना र अभिभावक संवादका लागि द्विभाषी विद्यालय वेबसाइट तथा व्यवस्थापन पोर्टल।",
     exploreAcademics: "शैक्षिक हेर्नुहोस्",
@@ -108,10 +108,10 @@ const translations = {
     statClasses: "कक्षा",
     statPortals: "सुरक्षित पोर्टल",
     aboutEyebrow: "विद्यालय परिचय",
-    aboutTitle: "भागीरथी एकेडेमीका लागि पूर्ण डिजिटल घर",
+    aboutTitle: "श्री भागरती एकेडेमीका लागि पूर्ण डिजिटल घर",
     introTitle: "विद्यालय परिचय",
     introText:
-      "भागीरथी एकेडेमी स्कूलले सिलगढी, डोटीका परिवारलाई कक्षा १ देखि १० सम्म मूल्यमा आधारित व्यवहारिक शिक्षा प्रदान गर्छ।",
+      "श्री भागरती एकेडेमीले सिलगढी, डोटीका परिवारलाई कक्षा १ देखि १० सम्म मूल्यमा आधारित व्यवहारिक शिक्षा प्रदान गर्छ।",
     visionTitle: "दृष्टिकोण",
     visionText: "अनुशासित, सिर्जनशील र आत्मविश्वासी विद्यार्थी तयार गर्नु।",
     missionTitle: "मिशन",
@@ -149,7 +149,7 @@ const translations = {
     subjectField: "विषय",
     messageField: "सन्देश",
     sendMessage: "सन्देश पठाउनुहोस्",
-    footerText: "भागीरथी एकेडेमी स्कूल - डिजिटल विद्यालय वेबसाइट र व्यवस्थापन पोर्टल नमुना।",
+    footerText: "श्री भागरती एकेडेमी - डिजिटल विद्यालय वेबसाइट र व्यवस्थापन पोर्टल नमुना।",
     secureLogin: "सुरक्षित लगइन",
     usernameField: "प्रयोगकर्ता नाम / आईडी",
     passwordField: "पासवर्ड",
@@ -174,22 +174,36 @@ const translations = {
 
 let teachers = [
   {
-    name: "Sushila Joshi",
+    id: "T-002",
+    name: "Khem Phulara",
     subject: "Mathematics",
-    phone: "984XXXXXXX",
-    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80",
-  },
-  {
-    name: "Deepak Rawal",
-    subject: "Science",
     phone: "985XXXXXXX",
-    img: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=700&q=80",
+    img: "math teacher.png",
+    photoPath: "math teacher.png",
   },
   {
-    name: "Mina Bhandari",
-    subject: "English",
+    id: "T-001",
+    name: "Tapendra Bhatta",
+    subject: "Science",
+    phone: "984XXXXXXX",
+    img: "science teacher.png",
+    photoPath: "science teacher.png",
+  },
+  {
+    id: "T-003",
+    name: "Bhuwan Bhatta",
+    subject: "English Teacher",
     phone: "986XXXXXXX",
-    img: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=80",
+    img: "English teacher.png",
+    photoPath: "English teacher.png",
+  },
+  {
+    id: "T-004",
+    name: "Abhi Malashi",
+    subject: "Environment Health and Population",
+    phone: "987XXXXXXX",
+    img: "ehp teacher.png",
+    photoPath: "ehp teacher.png",
   },
 ];
 
@@ -221,6 +235,12 @@ const TEACHERS_KEY = "bhagirathiTeachers";
 const SHOWCASE_KEY = "bhagirathiShowcase";
 const PUBLIC_SYNC_KEY = "bhagirathiPublicSync";
 const PLACEHOLDER_IMAGE = "placeholder.svg";
+const LEGACY_HERO_VIDEO_URL = "https://videos.pexels.com/video-files/29879263/12828596_3840_2160_30fps.mp4";
+const DEFAULT_HERO_VIDEO_PLAYLIST = [
+  "https://videos.pexels.com/video-files/8938122/8938122-uhd_3840_2160_25fps.mp4",
+  "https://videos.pexels.com/video-files/32498241/13857629_2160_3840_60fps.mp4",
+  "https://videos.pexels.com/video-files/30686948/13130856_3840_2160_30fps.mp4",
+];
 let language = "en";
 let classResources = [];
 let authState = JSON.parse(localStorage.getItem("bhagirathiAuth") || "null");
@@ -245,10 +265,24 @@ function t(key) {
 
 function getSavedSiteContent() {
   try {
-    return JSON.parse(localStorage.getItem(SITE_CONTENT_KEY)) || {};
+    const content = JSON.parse(localStorage.getItem(SITE_CONTENT_KEY)) || {};
+    const savedHeroVideo = String(content.heroVideoUrl || "").trim();
+    if (!savedHeroVideo || savedHeroVideo === LEGACY_HERO_VIDEO_URL) {
+      return { ...content, heroVideoUrl: DEFAULT_HERO_VIDEO_PLAYLIST.join("\n") };
+    }
+    return content;
   } catch (_error) {
-    return {};
+    return { heroVideoUrl: DEFAULT_HERO_VIDEO_PLAYLIST.join("\n") };
   }
+}
+
+function normalizeHeroVideoUrls(value) {
+  const urls = String(value || "")
+    .split(/[\n|,]+/)
+    .map((url) => url.trim())
+    .filter(Boolean);
+
+  return urls.length ? urls : DEFAULT_HERO_VIDEO_PLAYLIST;
 }
 
 function readSavedCollection(key, fallback) {
@@ -258,6 +292,12 @@ function readSavedCollection(key, fallback) {
   } catch (_error) {
     return fallback;
   }
+}
+
+function hasLegacyTeacherData(records) {
+  if (!Array.isArray(records)) return false;
+  const legacyNames = new Set(["sushila joshi", "deepak rawal", "mina bhandari"]);
+  return records.some((teacher) => legacyNames.has(String(teacher.name || "").trim().toLowerCase()));
 }
 
 function resolveImageUrl(value) {
@@ -276,7 +316,8 @@ function resolveImageUrl(value) {
         : `/${fileName}`;
 
   if (window.location.protocol === "file:") {
-    return relativePath;
+    if (cleanPath.startsWith("/Users/")) return encodeURI(cleanPath);
+    return encodeURI(cleanPath.replace(/^\/+/, ""));
   }
 
   const encodedPath = relativePath
@@ -295,7 +336,11 @@ function resolveImageUrl(value) {
 }
 
 function loadManagedPublicData() {
-  teachers = readSavedCollection(TEACHERS_KEY, teachers);
+  const savedTeachers = readSavedCollection(TEACHERS_KEY, teachers);
+  teachers = hasLegacyTeacherData(savedTeachers) ? teachers : savedTeachers;
+  if (hasLegacyTeacherData(savedTeachers)) {
+    localStorage.setItem(TEACHERS_KEY, JSON.stringify(teachers));
+  }
   achievements = readSavedCollection(SHOWCASE_KEY, achievements);
 }
 
@@ -404,7 +449,47 @@ function applySavedSiteContent() {
     document.querySelectorAll(`[data-site-content="${key}"]`).forEach((node) => {
       node.textContent = value;
     });
+    document.querySelectorAll(`[data-site-content-href="${key}"]`).forEach((node) => {
+      node.setAttribute("href", value);
+    });
+    document.querySelectorAll(`[data-site-content-src="${key}"]`).forEach((node) => {
+      const sourceValue = key === "heroVideoUrl" ? normalizeHeroVideoUrls(value)[0] : value;
+      node.setAttribute("src", sourceValue);
+    });
   });
+  setupHeroVideoPlaylist(content);
+}
+
+function setupHeroVideoPlaylist(content = getSavedSiteContent()) {
+  const video = document.querySelector(".site-background-video");
+  const source = video?.querySelector("[data-site-content-src='heroVideoUrl']");
+  if (!video || !source) return;
+
+  const playlist = normalizeHeroVideoUrls(content.heroVideoUrl || source.getAttribute("src"));
+  const signature = playlist.join("|");
+  if (video.dataset.playlistSignature === signature) return;
+
+  let activeIndex = 0;
+  video.dataset.playlistSignature = signature;
+  video.loop = playlist.length === 1;
+  source.setAttribute("src", playlist[activeIndex]);
+  video.load();
+  video.play().catch(() => {});
+
+  const playNext = () => {
+    if (playlist.length < 2) return;
+    activeIndex = (activeIndex + 1) % playlist.length;
+    video.style.opacity = "0.35";
+    window.setTimeout(() => {
+      source.setAttribute("src", playlist[activeIndex]);
+      video.load();
+      video.play().catch(() => {});
+      video.style.opacity = "1";
+    }, 250);
+  };
+
+  video.onended = playNext;
+  video.onerror = playNext;
 }
 
 function applyLanguage(nextLanguage) {
@@ -423,6 +508,7 @@ function applyLanguage(nextLanguage) {
   });
 
   applySavedSiteContent();
+  setupHeroVideoPlaylist();
 
   document.querySelectorAll(".lang-switch span").forEach((span, index) => {
     span.classList.toggle("active", (language === "en" && index === 0) || (language === "np" && index === 1));
@@ -552,6 +638,7 @@ function renderCards() {
 function setupContactForm() {
   const form = document.querySelector("#contactForm");
   const status = document.querySelector(".form-status");
+  if (!form || !status) return;
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -574,6 +661,8 @@ function setupLoginModal() {
   const loginRole = document.querySelector("#loginRole");
   const loginForm = document.querySelector("#loginForm");
   const loginStatus = document.querySelector(".login-status");
+  const closeModal = document.querySelector(".close-modal");
+  if (!modal || !loginRole || !loginForm || !loginStatus || !closeModal) return;
   let selectedRole = "student";
 
   document.querySelectorAll(".open-login").forEach((button) => {
@@ -585,7 +674,7 @@ function setupLoginModal() {
     });
   });
 
-  document.querySelector(".close-modal").addEventListener("click", () => {
+  closeModal.addEventListener("click", () => {
     modal.close();
   });
 

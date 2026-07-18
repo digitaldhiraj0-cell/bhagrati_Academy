@@ -16,7 +16,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/bhagirathi_academy";
 const JWT_SECRET = process.env.JWT_SECRET || "development-only-secret";
-const uploadDir = path.join(__dirname, "uploads", "classes");
+const classUploadDir = path.join(__dirname, "uploads", "classes");
+const mediaUploadDir = path.join(__dirname, "uploads", "media");
 const PLACEHOLDER_IMAGE = "/placeholder.svg";
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -26,7 +27,8 @@ const io = new Server(server, {
   },
 });
 
-fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(classUploadDir, { recursive: true });
+fs.mkdirSync(mediaUploadDir, { recursive: true });
 
 app.use(cors());
 app.use(express.json());
@@ -100,7 +102,7 @@ function emitPublicUpdate(key, data = null) {
 }
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
+  destination: (_req, _file, cb) => cb(null, classUploadDir),
   filename: (req, file, cb) => {
     const classNumber = req.params.classNumber;
     const cleanName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "-");
@@ -117,6 +119,36 @@ const upload = multer({
     cb(null, true);
   },
   limits: { fileSize: 8 * 1024 * 1024 },
+});
+
+const mediaStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, mediaUploadDir),
+  filename: (_req, file, cb) => {
+    const cleanName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, "-");
+    cb(null, `${Date.now()}-${cleanName}`);
+  },
+});
+
+const mediaUpload = multer({
+  storage: mediaStorage,
+  fileFilter: (_req, file, cb) => {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "video/mp4",
+      "video/webm",
+      "application/pdf",
+    ];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("Only images, MP4/WebM videos, and PDF files are allowed."));
+    }
+
+    cb(null, true);
+  },
+  limits: { fileSize: 80 * 1024 * 1024 },
 });
 
 function createToken(user) {
@@ -156,22 +188,32 @@ function requireAdmin(req, res, next) {
 }
 
 const defaultSiteContent = {
-  schoolName: "Bhagirathi Academy School",
+  schoolName: "Shree Bhagrati Academy",
   location: "Silgadhi, Doti, Nepal",
   heroEyebrow: "Modern education in the heart of Doti",
-  heroTitle: "Bhagirathi Academy School",
+  heroTitle: "Shree Bhagrati Academy",
   heroText:
     "A bilingual, student-focused school website and management portal for academics, attendance, assignments, notices, and parent communication.",
-  aboutTitle: "A complete digital home for Bhagirathi Academy",
+  heroVideoUrl:
+    "https://videos.pexels.com/video-files/8938122/8938122-uhd_3840_2160_25fps.mp4\nhttps://videos.pexels.com/video-files/32498241/13857629_2160_3840_60fps.mp4\nhttps://videos.pexels.com/video-files/30686948/13130856_3840_2160_30fps.mp4",
+  primaryCtaText: "Explore Academics",
+  primaryCtaHref: "#academics",
+  secondaryCtaText: "Contact Us",
+  secondaryCtaHref: "#contact",
+  statStudentsNumber: "450+",
+  statTeachersNumber: "32",
+  statClassesNumber: "1-10",
+  statResourcesNumber: "12",
+  aboutTitle: "A complete digital home for Shree Bhagrati Academy",
   introText:
-    "Bhagirathi Academy School serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
+    "Shree Bhagrati Academy serves families in Silgadhi, Doti with a practical, values-led education experience from Class 1 to Class 10.",
   visionText: "To prepare disciplined, creative, and confident learners for a brighter future.",
   missionText: "To combine strong academics, moral development, digital learning, and community partnership.",
   principalName: "Hemraj Malasi",
   principalText:
     "Our goal is to build a school culture where every student is seen, supported, and prepared for lifelong learning.",
   addressLine: "Silgadhi, Doti, Sudurpashchim Province, Nepal",
-  schoolPhone: "98XXXXXXXX",
+  schoolPhone: "9865717422",
   schoolEmail: "bhagratiacademy65@gmail.com",
 };
 
@@ -201,6 +243,18 @@ const defaultStudents = [
 
 const defaultTeachers = [
   {
+    id: "T-002",
+    name: "Khem Phulara",
+    designation: "Mathematics Teacher",
+    department: "Mathematics",
+    subject: "Mathematics",
+    phone: "985XXXXXXX",
+    email: "math@bhagirathiacademy.edu.np",
+    description: "Mathematics faculty member focused on problem solving and fundamentals.",
+    photoPath: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
+    img: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
+  },
+  {
     id: "T-001",
     name: "Tapendra Bhatta",
     designation: "Science Teacher",
@@ -213,23 +267,11 @@ const defaultTeachers = [
     img: "/Users/mac/Documents/bhagrati_Academy/science teacher.png",
   },
   {
-    id: "T-002",
-    name: "Khem Phulara",
-    designation: "Math Teacher",
-    department: "Mathematics",
-    subject: "Mathematics",
-    phone: "985XXXXXXX",
-    email: "math@bhagirathiacademy.edu.np",
-    description: "Mathematics faculty member focused on problem solving and fundamentals.",
-    photoPath: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
-    img: "/Users/mac/Documents/bhagrati_Academy/math teacher.png",
-  },
-  {
     id: "T-003",
     name: "Bhuwan Bhatta",
     designation: "English Teacher",
     department: "English",
-    subject: "English",
+    subject: "English Teacher",
     phone: "986XXXXXXX",
     email: "english@bhagirathiacademy.edu.np",
     description: "English faculty member supporting communication, reading, and writing skills.",
@@ -241,7 +283,7 @@ const defaultTeachers = [
     name: "Abhi Malashi",
     designation: "Environment Health & Population Teacher",
     department: "Environment Health & Population",
-    subject: "Environment Health & Population",
+    subject: "Environment Health and Population",
     phone: "987XXXXXXX",
     email: "ehp@bhagirathiacademy.edu.np",
     description: "Environment Health & Population faculty member.",
@@ -709,8 +751,33 @@ app.post(
   }),
 );
 
+app.post(
+  "/api/admin/media",
+  requireAuth,
+  requireAdmin,
+  mediaUpload.single("media"),
+  asyncHandler(async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "A media file is required." });
+    }
+
+    res.status(201).json({
+      originalName: req.file.originalname,
+      fileName: req.file.filename,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      url: `/uploads/media/${req.file.filename}`,
+    });
+  }),
+);
+
 app.use((error, _req, res, _next) => {
-  if (error instanceof multer.MulterError || error.message === "Only PDF files are allowed.") {
+  const validationErrors = [
+    "Only PDF files are allowed.",
+    "Only images, MP4/WebM videos, and PDF files are allowed.",
+  ];
+
+  if (error instanceof multer.MulterError || validationErrors.includes(error.message)) {
     return res.status(400).json({ message: error.message });
   }
 
@@ -739,7 +806,7 @@ async function start() {
     await seedEditableData();
 
     server.listen(PORT, () => {
-      console.log(`Bhagirathi Academy app running at http://localhost:${PORT}`);
+      console.log(`Shree Bhagrati Academy app running at http://localhost:${PORT}`);
       console.log("Demo users: BAS-001 / password123, PARENT-001 / password123, ADMIN-001 / password123");
     });
   } catch (error) {
