@@ -565,6 +565,28 @@ body.np .eyebrow {
   padding: 20px;
 }
 
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.video-card {
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(220, 229, 242, 0.72);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(11, 42, 91, 0.07);
+  backdrop-filter: blur(12px);
+}
+
+.video-card iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
 .tag {
   display: inline-flex;
   margin-bottom: 12px;
@@ -799,6 +821,7 @@ textarea {
 
   .stats,
   .card-grid,
+  .video-grid,
   .portal-grid,
   .about-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -834,6 +857,7 @@ textarea {
 
   .stats,
   .card-grid,
+  .video-grid,
   .portal-grid,
   .about-grid,
   .subject-grid {
