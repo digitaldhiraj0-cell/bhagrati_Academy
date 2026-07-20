@@ -581,9 +581,16 @@ body.np .eyebrow {
   backdrop-filter: blur(12px);
 }
 
-.video-card a {
+.video-card a,
+.video-card iframe {
   position: relative;
   display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+.video-card a {
   color: var(--white);
 }
 

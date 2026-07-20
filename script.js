@@ -755,6 +755,7 @@ function setupLoginModal() {
 function setupPdfUpload() {
   const form = document.querySelector("#pdfUploadForm");
   const status = document.querySelector(".upload-status");
+  if (!form || !status) return;
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -802,9 +803,33 @@ function setupPdfUpload() {
   });
 }
 
+function setupAutoplayYoutubeVideos() {
+  if (window.location.protocol === "file:") return;
+
+  document.querySelectorAll(".video-card[data-youtube-id]").forEach((card, index) => {
+    const videoId = card.dataset.youtubeId;
+    if (!videoId || card.querySelector("iframe")) return;
+
+    const iframe = document.createElement("iframe");
+    const autoplayStart = index;
+    iframe.title = `Shree Bhagrati Academy video ${index + 1}`;
+    iframe.loading = "lazy";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    iframe.src =
+      `https://www.youtube.com/embed/${videoId}` +
+      `?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${videoId}&controls=1&rel=0&modestbranding=1&start=${autoplayStart}`;
+
+    card.replaceChildren(iframe);
+  });
+}
+
 function setupMenu() {
   const header = document.querySelector(".site-header");
   const toggle = document.querySelector(".menu-toggle");
+  if (!header || !toggle) return;
+
   toggle.addEventListener("click", () => {
     const isOpen = header.classList.toggle("menu-open");
     toggle.setAttribute("aria-expanded", String(isOpen));
@@ -828,6 +853,7 @@ async function bootstrap() {
   setupContactForm();
   setupLoginModal();
   setupPdfUpload();
+  setupAutoplayYoutubeVideos();
   setupMenu();
   setupRealtimeSync();
 }
